@@ -1,4 +1,4 @@
-package com.next.sync.ui.notifications
+package com.next.sync.ui.tasks
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,6 @@ fun NotificationScreen(paddingModifier: Modifier) {
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        Text(text="home", fontSize = 100.sp)
+        Text(text="tasks", fontSize = 100.sp)
     }
 }

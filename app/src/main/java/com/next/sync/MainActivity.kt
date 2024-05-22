@@ -1,8 +1,10 @@
 package com.next.sync
 
+import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,14 +18,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
-import com.next.sync.ui.dashboard.DashboardScreen
+import com.next.sync.ui.options.DashboardScreen
 import com.next.sync.ui.home.HomeScreen
-import com.next.sync.ui.notifications.NotificationScreen
+import com.next.sync.ui.tasks.NotificationScreen
 import com.next.sync.ui.theme.AppTheme
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.lightColorScheme
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -95,10 +102,20 @@ class MainActivity : ComponentActivity() {
 //    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                title = { androidx.compose.material3.Text(text = "Home") }
+            )
+        },
         bottomBar = { AppBottomBar(navController = navController) },
     ) //content:
     { paddingValues ->
@@ -112,15 +129,17 @@ fun MainScreen() {
 @Composable
 fun AppBottomBar(navController: NavHostController) {
     val screens = listOf(
-        BottomBarScreen.Home,
         BottomBarScreen.Tasks,
+        BottomBarScreen.Home,
         BottomBarScreen.Options
     )
-    BottomNavigation() {
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colorScheme.primary
+    ) {
         screens.forEach { screen ->
             AddItem(
                 screen = screen,
-                navController = navController
+                navController = navController,
             )
         }
     }
@@ -139,9 +158,12 @@ fun RowScope.AddItem(
         icon = {
             Icon(
                 imageVector = screen.icon,
-                contentDescription = screen.route + " icon"
+                contentDescription = screen.route + " icon",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         },
+        unselectedContentColor = MaterialTheme.colorScheme.onPrimary,
+        selectedContentColor = MaterialTheme.colorScheme.onSecondary,
         selected = screen.route == backStackEntry.value?.destination?.route,
         onClick = {
             navController.navigate(screen.route) {
@@ -157,16 +179,17 @@ fun BottomNavigationGraph(
     navController: NavHostController,
     paddingModifier: Modifier
 ) {
-    NavHost(navController = navController,
+    NavHost(
+        navController = navController,
         startDestination = BottomBarScreen.Home.route
     ) {
-        composable(route= BottomBarScreen.Home.route) {
+        composable(route = BottomBarScreen.Home.route) {
             HomeScreen(paddingModifier)
         }
-        composable(route= BottomBarScreen.Tasks.route) {
+        composable(route = BottomBarScreen.Tasks.route) {
             DashboardScreen(paddingModifier)
         }
-        composable(route= BottomBarScreen.Options.route) {
+        composable(route = BottomBarScreen.Options.route) {
             NotificationScreen(paddingModifier)
         }
     }
