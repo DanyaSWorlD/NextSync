@@ -1,38 +1,36 @@
 package com.next.sync
 
-import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.next.sync.ui.components.bottom_bar.BottomBarScreen
-import com.next.sync.ui.options.DashboardScreen
-import com.next.sync.ui.home.HomeScreen
-import com.next.sync.ui.tasks.NotificationScreen
-import com.next.sync.ui.theme.AppTheme
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.next.sync.ui.components.bottom_bar.BottomBarScreen
+import com.next.sync.ui.home.HomeScreen
+import com.next.sync.ui.options.DashboardScreen
+import com.next.sync.ui.tasks.NotificationScreen
+import com.next.sync.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -119,10 +117,17 @@ fun MainScreen() {
         bottomBar = { AppBottomBar(navController = navController) },
     ) //content:
     { paddingValues ->
-        BottomNavigationGraph(
-            navController = navController,
-            paddingModifier = Modifier.padding(paddingValues)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            BottomNavigationGraph(
+                navController = navController,
+                paddingModifier = Modifier.padding(paddingValues)
+            )
+        }
+
     }
 }
 
