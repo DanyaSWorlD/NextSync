@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -50,17 +53,18 @@ fun HomeScreen(paddingModifier: Modifier) {
 fun MainCard()
 {
     Card(modifier = Modifier.fillMaxWidth()){
-        Column {
-            Row (horizontalArrangement = Arrangement.SpaceBetween) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row (
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
-                    modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
+                    modifier = Modifier.size(128.dp).weight(1f)
                 ){
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
                         progress = 66f,
-                        modifier = Modifier.fillMaxHeight())
+                        modifier = Modifier.align(Alignment.Center).size(128.dp))
                 }
 
                 Column(
@@ -73,6 +77,7 @@ fun MainCard()
                     Text(text = "270MB")
                 }
             }
+            Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
                 Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
                     Text(text = "Synchronize now")
