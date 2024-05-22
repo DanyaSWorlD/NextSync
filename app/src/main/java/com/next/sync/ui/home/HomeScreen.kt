@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,12 +60,12 @@ fun MainCard()
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    modifier = Modifier.size(128.dp).weight(1f)
+                    modifier = Modifier.aspectRatio(1f).weight(1f)
                 ){
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
                         progress = 66f,
-                        modifier = Modifier.align(Alignment.Center).size(128.dp))
+                        modifier = Modifier.fillMaxSize())
                 }
 
                 Column(
