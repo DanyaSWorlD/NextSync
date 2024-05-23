@@ -1,6 +1,7 @@
 package com.next.sync.ui.home
 
-import androidx.compose.foundation.background
+import android.graphics.fonts.FontStyle
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,80 +13,268 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.next.sync.R
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun HomeScreen(paddingModifier: Modifier) {
     LazyColumn(
         modifier = Modifier
-            .padding(5.dp)
-    ){
+            .padding(8.dp)
+    ) {
         item {
             MainCard()
         }
 
         item {
-            Card {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Row(Modifier.padding(8.dp)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_battery_alert_24),
+                        contentDescription = null, // decorative element
+                        Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
+                    )
+                    Column {
+                        Box(Modifier.padding(top = 16.dp, bottom = 8.dp))
+                        {
+                            Text(text = "Battery optimisation", fontWeight = FontWeight.Bold)
+                        }
+                        Text(text = "NextSync working in background to keep your files in sync. To maintain app stability please disable battery optimisations")
+                        Button(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .align(Alignment.End)
+                        ) {
+                            Text(text = "Open settings")
+                        }
+                    }
+                }
+            }
+        }
 
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+            ) {
+                Column {
+                    Row {
+                        Box(Modifier.weight(1f)) {
+                            Tile(R.drawable.baseline_network_wifi_24, "WI-FI")
+                        }
+                        Box(Modifier.weight(1f)) {
+                            Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
+                        }
+                    }
+                    Row {
+
+                        Box(Modifier.weight(1f)) {
+                            Tile(R.drawable.baseline_cloud_sync_24, "Last sync\n2 hrs ago")
+                        }
+                        Box(Modifier.weight(1f)) {
+                            Tile(R.drawable.baseline_timer_24, "Next sync\nin 22 hrs")
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Column()
+                {
+                    Row(Modifier.padding(8.dp)) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_info_24),
+                            contentDescription = null, // decorative element
+                            Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
+                        )
+                        Column {
+                            Box(Modifier.padding(top = 16.dp, bottom = 8.dp))
+                            {
+                                Text(text = "Sync report", fontWeight = FontWeight.Bold)
+                            }
+                            Text(text = "10/10 files uploaded")
+                            Text(text = "15MB of bandwidth used")
+                            Text(text = "15 seconds runtime")
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                        Button(
+                            onClick = { /*TODO*/ }, modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)
+                        ) {
+                            Text(text = "Open report")
+                        }
+                        Button(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.inversePrimary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text(text = "dismiss")
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MainCard()
-{
-    Card(modifier = Modifier.fillMaxWidth()){
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row (
+fun MainCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Column {
+            Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    modifier = Modifier.aspectRatio(1f).weight(1f)
-                ){
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        progress = 66f,
-                        modifier = Modifier.fillMaxSize())
-                }
-
-                Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .weight(1f)
+                        .padding(16.dp)
                 ) {
-                    Text(text = "All time stats")
-                    Text(text = "Upload")
-                    Text(text = "1.1GB")
-                    Text(text = "Download")
-                    Text(text = "270MB")
+                    SpaceGauge()
+                }
+                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    AllTimeStats()
                 }
             }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { /*TODO*/ }, modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
+                ) {
                     Text(text = "Synchronize now")
                 }
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
                     Text(text = "Add task")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun SpaceGauge() {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 30.dp, end = 20.dp, top = 30.dp, bottom = 20.dp)
+    ) {
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Text(text = "66%", fontSize = 40.sp, textAlign = TextAlign.Center)
+        }
+        Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+            Text(text = "20/30 GB USED", textAlign = TextAlign.Center)
+        }
+    }
+    CircularProgressIndicator(
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.onPrimary,
+        progress = 0.6f,
+        strokeWidth = 10.dp,
+        strokeCap = StrokeCap.Round,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+fun AllTimeStats() {
+    Column {
+        Text(text = "All time stats")
+        IconText(resource = R.drawable.baseline_cloud_upload_24, text = "Upload")
+        Text(text = "1.1GB", Modifier.padding(start = 28.dp))
+        IconText(resource = R.drawable.baseline_cloud_download_24, text = "Download")
+        Text(text = "270MB", Modifier.padding(start = 28.dp))
+    }
+}
+
+@Composable
+fun IconText(@DrawableRes resource: Int, text: String) {
+    Row {
+        Icon(
+            painter = painterResource(id = resource),
+            contentDescription = null // decorative element
+        )
+        Text(text = text, Modifier.padding(start = 4.dp))
+    }
+}
+
+@Composable
+fun Tile(@DrawableRes resource: Int, text: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row (Modifier.fillMaxHeight()) {
+            Icon(
+                painter = painterResource(id = resource),
+                contentDescription = null, // decorative element
+                Modifier.padding(16.dp)
+            )
+            Box(Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) {
+                Text(text = text, textAlign = TextAlign.Center)
             }
         }
     }
