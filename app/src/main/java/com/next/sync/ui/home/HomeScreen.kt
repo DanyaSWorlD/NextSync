@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,17 +41,17 @@ import com.next.sync.ui.theme.AppTheme
 fun HomeScreen(paddingModifier: Modifier) {
     LazyColumn(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(start = 8.dp, end = 8.dp)
     ) {
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             MainCard()
         }
-
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Row(Modifier.padding(8.dp)) {
@@ -77,27 +78,29 @@ fun HomeScreen(paddingModifier: Modifier) {
                 }
             }
         }
-
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp)
             ) {
                 Column {
                     Row {
                         Box(Modifier.weight(1f)) {
                             Tile(R.drawable.baseline_network_wifi_24, "WI-FI")
                         }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Box(Modifier.weight(1f)) {
                             Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row {
 
                         Box(Modifier.weight(1f)) {
                             Tile(R.drawable.baseline_cloud_sync_24, "Last sync\n2 hrs ago")
                         }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Box(Modifier.weight(1f)) {
                             Tile(R.drawable.baseline_timer_24, "Next sync\nin 22 hrs")
                         }
@@ -105,12 +108,11 @@ fun HomeScreen(paddingModifier: Modifier) {
                 }
             }
         }
-
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column()
@@ -156,6 +158,7 @@ fun HomeScreen(paddingModifier: Modifier) {
                 }
             }
         }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
     }
 }
 
@@ -229,7 +232,7 @@ fun SpaceGauge() {
     }
     CircularProgressIndicator(
         color = MaterialTheme.colorScheme.primary,
-        trackColor = MaterialTheme.colorScheme.onPrimary,
+        trackColor = MaterialTheme.colorScheme.background,
         progress = 0.6f,
         strokeWidth = 10.dp,
         strokeCap = StrokeCap.Round,
@@ -263,17 +266,20 @@ fun IconText(@DrawableRes resource: Int, text: String) {
 fun Tile(@DrawableRes resource: Int, text: String) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
-        Row (Modifier.fillMaxHeight()) {
+        Row(Modifier.fillMaxHeight()) {
             Icon(
                 painter = painterResource(id = resource),
                 contentDescription = null, // decorative element
                 Modifier.padding(16.dp)
             )
-            Box(Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp), contentAlignment = Alignment.Center
+            ) {
                 Text(text = text, textAlign = TextAlign.Center)
             }
         }

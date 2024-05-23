@@ -110,8 +110,8 @@ fun MainScreen() {
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 title = { androidx.compose.material3.Text(text = "Home") }
             )
@@ -142,7 +142,7 @@ fun AppBottomBar(navController: NavHostController) {
         BottomBarScreen.Options
     )
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.primary
+        backgroundColor = MaterialTheme.colorScheme.surface
     ) {
         screens.forEach { screen ->
             AddItem(
@@ -167,11 +167,11 @@ fun RowScope.AddItem(
             Icon(
                 imageVector = screen.icon,
                 contentDescription = screen.route + " icon",
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onSurface
             )
         },
-        unselectedContentColor = MaterialTheme.colorScheme.onPrimary,
-        selectedContentColor = MaterialTheme.colorScheme.onSecondary,
+        unselectedContentColor = MaterialTheme.colorScheme.onSurface,
+        selectedContentColor = MaterialTheme.colorScheme.onSurface,
         selected = screen.route == backStackEntry.value?.destination?.route,
         onClick = {
             navController.navigate(screen.route) {
