@@ -8,7 +8,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun loginWebViewScreen(loginViewModel: LoginViewModel = viewModel())
+fun loginWebViewScreen(loginState: LoginState)
 {
     // Adding a WebView inside AndroidView
     // with layout as full screen
@@ -20,6 +20,6 @@ fun loginWebViewScreen(loginViewModel: LoginViewModel = viewModel())
             )
         }
     }, update = {
-        it.loadUrl(loginViewModel.serverAddress, mapOf("OCS-APIREQUEST" to "true"))
+        it.loadUrl(loginState.serverAddress, mapOf("OCS-APIREQUEST" to "true"))
     })
 }
