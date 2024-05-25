@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -38,13 +39,21 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
 
+
+    LaunchedEffect(loginViewModel.loginState.isLoggedIn) {
+        navController.navigate(BottomBarScreen.Home.route)
+    }
+
     Scaffold(
         topBar = { HomeTopBar() },
         bottomBar = { AppBottomBar(navController = navController) },
     ) { paddingValues ->
 
         Column(
-            modifier = Modifier.fillMaxSize().statusBarsPadding().padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .padding(paddingValues)
         ) {
             NavHost(
                 navController = navController,
@@ -63,7 +72,7 @@ fun AppNavigation(
                 }
 
                 composable(route = Routes.LoginScreen.name) {
-                    LoginScreen(loginEvents = loginViewModel::onEvent )
+                    LoginScreen(loginEvents = loginViewModel::onEvent)
                 }
             }
         }
