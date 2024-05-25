@@ -29,12 +29,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.next.sync.R
 import com.next.sync.ui.events.LoginEvents
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun LoginScreen(
+    loginViewModel: LoginViewModel = viewModel(),
     loginEvents: (LoginEvents) -> Unit
 ) {
     var serverAddress by remember { mutableStateOf("") }
@@ -52,7 +54,11 @@ fun LoginScreen(
         )
 
         Column {
-            Box(modifier = Modifier.weight(1f).fillMaxSize()){
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+            ) {
                 Text(
                     text = "LOGO",
                     modifier = Modifier.align(Alignment.BottomCenter),
@@ -69,9 +75,9 @@ fun LoginScreen(
                     .padding(start = 40.dp, end = 40.dp)
             ) {
                 OutlinedTextField(
-                    value = serverAddress,
+                    value = loginViewModel.serverAddress,
                     label = { Text(text = "Server address") },
-                    onValueChange = { serverAddress = it },
+                    onValueChange = { loginViewModel.changeServerAddress(it) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.White,
                         unfocusedBorderColor = Color.White,
@@ -87,7 +93,9 @@ fun LoginScreen(
 
                 IconButton(
                     onClick = { loginEvents(LoginEvents.OnAddressConfirmed(serverAddress)) },
-                    Modifier.align(Alignment.CenterEnd).padding(top = 8.dp),
+                    Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(top = 8.dp),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
