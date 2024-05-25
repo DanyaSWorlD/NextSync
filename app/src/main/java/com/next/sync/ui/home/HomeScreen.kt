@@ -33,20 +33,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
+import com.next.sync.ui.Routes
 import com.next.sync.ui.theme.AppTheme
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigate: (String) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { MainCard(onSynchronizeNow = {}, onAddTask = {}) }
+        item { MainCard(onSynchronizeNow = {}, onAddTask = { onNavigate(Routes.TaskScreen.name) }) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { BatteryCard(onOpenSettings = {}) }
+        item { BatteryCard(onOpenSettings = { onNavigate(Routes.SettingsScreen.name) }) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { StatusCard() }
@@ -125,14 +128,18 @@ private fun SyncReportCard(
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
                 Button(
                     onClick = { onOpenReport() },
-                    modifier = Modifier.weight(1f).padding(8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
                 ) {
                     Text(text = "Open report")
                 }
 
                 Button(
                     onClick = { onDismiss() },
-                    modifier = Modifier.weight(1f).padding(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -329,6 +336,6 @@ fun Tile(@DrawableRes resource: Int, text: String) {
 @Preview
 fun HomeScreenPreview() {
     AppTheme(false) {
-        HomeScreen()
+        HomeScreen(onNavigate = {})
     }
 }

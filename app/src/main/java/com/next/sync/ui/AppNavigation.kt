@@ -45,7 +45,7 @@ fun AppNavigation() {
                 startDestination = BottomBarScreen.Home.route
             ) {
                 composable(route = BottomBarScreen.Home.route) {
-                    HomeScreen()
+                    HomeScreen(onNavigate = { route -> navController.navigate(route) })
                 }
 
                 composable(route = BottomBarScreen.Tasks.route) {
