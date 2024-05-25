@@ -11,13 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun NotificationScreen(paddingModifier: Modifier) {
+fun NotificationScreen() {
     Box(
-        modifier = paddingModifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.BottomCenter,
     ) {
         Text(text="tasks", fontSize = 100.sp)
     }
 }
+

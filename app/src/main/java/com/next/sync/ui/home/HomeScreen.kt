@@ -38,7 +38,7 @@ import com.next.sync.R
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun HomeScreen(paddingModifier: Modifier) {
+fun HomeScreen() {
     LazyColumn(
         modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
@@ -290,6 +290,6 @@ fun Tile(@DrawableRes resource: Int, text: String) {
 @Preview
 fun HomeScreenPreview() {
     AppTheme(false) {
-        HomeScreen(Modifier.padding(0.dp))
+        HomeScreen()
     }
 }

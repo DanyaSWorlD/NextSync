@@ -15,10 +15,9 @@ import androidx.compose.ui.unit.sp
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun DashboardScreen(paddingModifier: Modifier) {
+fun DashboardScreen() {
     Box(
-        modifier = paddingModifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.BottomCenter,
     ) {
@@ -31,6 +30,6 @@ fun DashboardScreen(paddingModifier: Modifier) {
 fun DashboardScreenPreview()
 {
     AppTheme(false) {
-        DashboardScreen(Modifier.padding(0.dp))
+        DashboardScreen()
     }
 }
