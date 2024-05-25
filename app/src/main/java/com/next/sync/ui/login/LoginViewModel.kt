@@ -7,19 +7,21 @@ import androidx.lifecycle.ViewModel
 import com.next.sync.ui.events.LoginEvents
 
 
-data class LoginState(
-    val isLoggedIn: Boolean = false
-)
-class LoginViewModel: ViewModel() {
+class LoginViewModel : ViewModel() {
+    var serverAddress by mutableStateOf("")
+    val loginFlow : String
+        get() = serverAddress + "/index.php/login/flow"
 
-    var loginState by mutableStateOf(LoginState())
+    fun changeServerAddress(value: String) {
+        serverAddress = value
+    }
+
+
 
     fun onEvent(event: LoginEvents) {
-        when(event) {
+        when (event) {
             is LoginEvents.OnAddressConfirmed -> {
                 // Handle address confirmation
-                // val response = loginRepository.login(event.address)
-                loginState = loginState.copy(isLoggedIn = true)
             }
         }
     }

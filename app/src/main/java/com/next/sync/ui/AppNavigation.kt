@@ -60,7 +60,7 @@ fun AppNavigation(
                 startDestination = BottomBarScreen.Home.route
             ) {
                 composable(route = BottomBarScreen.Home.route) {
-                    HomeScreen(onNavigate = { route -> navController.navigate(route) })
+                    HomeScreen(onNavigate = { _ -> navController.navigate(BottomBarScreen.Tasks.route) })
                 }
 
                 composable(route = BottomBarScreen.Tasks.route) {
@@ -108,7 +108,7 @@ fun AppBottomBar(
     ) {
         screens.forEach { screens ->
             BottomNavigationItem(
-                label = { Text(text = screens.label) },
+                label = { Text(text = screens.label, color = MaterialTheme.colorScheme.onSurface) },
                 icon = {
                     Icon(
                         imageVector = screens.icon,
