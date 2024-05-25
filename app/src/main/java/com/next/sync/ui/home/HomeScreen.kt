@@ -1,6 +1,5 @@
 package com.next.sync.ui.home
 
-import android.graphics.fonts.FontStyle
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.next.sync.R
 import com.next.sync.ui.theme.AppTheme
 
+
 @Composable
 fun HomeScreen() {
     LazyColumn(
@@ -44,131 +43,159 @@ fun HomeScreen() {
             .padding(start = 8.dp, end = 8.dp)
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item {
-            MainCard()
-        }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Row(Modifier.padding(8.dp)) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_battery_alert_24),
-                        contentDescription = null, // decorative element
-                        Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
-                    )
-                    Column {
-                        Box(Modifier.padding(top = 16.dp, bottom = 8.dp))
-                        {
-                            Text(text = "Battery optimisation", fontWeight = FontWeight.Bold)
-                        }
-                        Text(text = "NextSync working in background to keep your files in sync. To maintain app stability please disable battery optimisations")
-                        Button(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .align(Alignment.End)
-                        ) {
-                            Text(text = "Open settings")
-                        }
-                    }
-                }
-            }
-        }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Column {
-                    Row {
-                        Box(Modifier.weight(1f)) {
-                            Tile(R.drawable.baseline_network_wifi_24, "WI-FI")
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Box(Modifier.weight(1f)) {
-                            Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row {
+        item { MainCard(onSynchronizeNow = {}, onAddTask = {}) }
 
-                        Box(Modifier.weight(1f)) {
-                            Tile(R.drawable.baseline_cloud_sync_24, "Last sync\n2 hrs ago")
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Box(Modifier.weight(1f)) {
-                            Tile(R.drawable.baseline_timer_24, "Next sync\nin 22 hrs")
-                        }
-                    }
-                }
-            }
-        }
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column()
-                {
-                    Row(Modifier.padding(8.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_info_24),
-                            contentDescription = null, // decorative element
-                            Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
-                        )
-                        Column {
-                            Box(Modifier.padding(top = 16.dp, bottom = 8.dp))
-                            {
-                                Text(text = "Sync report", fontWeight = FontWeight.Bold)
-                            }
-                            Text(text = "10/10 files uploaded")
-                            Text(text = "15MB of bandwidth used")
-                            Text(text = "15 seconds runtime")
-                            Spacer(Modifier.height(8.dp))
-                        }
-                    }
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp)
-                        ) {
-                            Text(text = "Open report")
-                        }
-                        Button(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.inversePrimary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Text(text = "dismiss")
-                        }
-                    }
-                }
-            }
-        }
+        item { BatteryCard(onOpenSettings = {}) }
+
+        item { Spacer(modifier = Modifier.height(8.dp)) }
+        item { StatusCard() }
+
+        item { Spacer(modifier = Modifier.height(8.dp)) }
+        item { SyncReportCard(onOpenReport = {}, onDismiss = {}) }
+
         item { Spacer(modifier = Modifier.height(8.dp)) }
     }
 }
 
 @Composable
-fun MainCard() {
+private fun StatusCard() {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column {
+            Row {
+                Box(modifier = Modifier.weight(1f)) {
+                    Tile(R.drawable.baseline_network_wifi_24, "WI-FI")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+
+                Box(modifier = Modifier.weight(1f)) {
+                    Tile(R.drawable.baseline_cloud_sync_24, "Last sync\n2 hrs ago")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    Tile(R.drawable.baseline_timer_24, "Next sync\nin 22 hrs")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SyncReportCard(
+    onOpenReport: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Column()
+        {
+            Row(Modifier.padding(8.dp)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_info_24),
+                    contentDescription = null, // decorative element
+                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
+                )
+                Column {
+                    Box(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    ) {
+                        Text(text = "Sync report", fontWeight = FontWeight.Bold)
+                    }
+
+                    Text(text = "10/10 files uploaded")
+                    Text(text = "15MB of bandwidth used")
+                    Text(text = "15 seconds runtime")
+
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Button(
+                    onClick = { onOpenReport() },
+                    modifier = Modifier.weight(1f).padding(8.dp)
+                ) {
+                    Text(text = "Open report")
+                }
+
+                Button(
+                    onClick = { onDismiss() },
+                    modifier = Modifier.weight(1f).padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(text = "dismiss")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BatteryCard(
+    onOpenSettings: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(Modifier.padding(8.dp)) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_battery_alert_24),
+                contentDescription = null,
+                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
+            )
+            Column {
+
+                Box(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                ) {
+                    Text(text = "Battery optimisation", fontWeight = FontWeight.Bold)
+                }
+
+                Text(
+                    text = "NextSync working in background to keep your files in sync. " +
+                            "To maintain app stability please disable battery optimisations"
+                )
+
+                Button(
+                    onClick = { onOpenSettings() },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.End)
+                ) {
+                    Text(text = "Open settings")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MainCard(
+    onSynchronizeNow: () -> Unit,
+    onAddTask: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column {
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -181,21 +208,29 @@ fun MainCard() {
                 ) {
                     SpaceGauge()
                 }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
                     AllTimeStats()
                 }
             }
+
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
+
                 Button(
-                    onClick = { /*TODO*/ }, modifier = Modifier
+                    onClick = { onSynchronizeNow() },
+                    modifier = Modifier
                         .weight(1f)
                         .padding(8.dp)
                 ) {
                     Text(text = "Synchronize now")
                 }
+
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onAddTask() },
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp),
@@ -244,8 +279,10 @@ fun SpaceGauge() {
 fun AllTimeStats() {
     Column {
         Text(text = "All time stats")
+
         IconText(resource = R.drawable.baseline_cloud_upload_24, text = "Upload")
         Text(text = "1.1GB", Modifier.padding(start = 28.dp))
+
         IconText(resource = R.drawable.baseline_cloud_download_24, text = "Download")
         Text(text = "270MB", Modifier.padding(start = 28.dp))
     }
@@ -256,7 +293,7 @@ fun IconText(@DrawableRes resource: Int, text: String) {
     Row {
         Icon(
             painter = painterResource(id = resource),
-            contentDescription = null // decorative element
+            contentDescription = null
         )
         Text(text = text, Modifier.padding(start = 4.dp))
     }
@@ -265,20 +302,22 @@ fun IconText(@DrawableRes resource: Int, text: String) {
 @Composable
 fun Tile(@DrawableRes resource: Int, text: String) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
-        Row(Modifier.fillMaxHeight()) {
+
+        Row(modifier = Modifier.fillMaxHeight()) {
             Icon(
                 painter = painterResource(id = resource),
                 contentDescription = null, // decorative element
                 Modifier.padding(16.dp)
             )
+
             Box(
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp), contentAlignment = Alignment.Center
+                    .height(56.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(text = text, textAlign = TextAlign.Center)
             }
