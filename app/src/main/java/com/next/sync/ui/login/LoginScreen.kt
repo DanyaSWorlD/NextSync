@@ -1,4 +1,4 @@
-package com.next.sync.ui
+package com.next.sync.ui.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -31,10 +30,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
+import com.next.sync.ui.events.LoginEvents
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    loginEvents: (LoginEvents) -> Unit
+) {
+    var serverAddress by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+
     Box(Modifier.fillMaxSize())
     {
         Image(
@@ -43,6 +50,7 @@ fun LoginScreen() {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
+
         Column {
             Box(modifier = Modifier.weight(1f).fillMaxSize()){
                 Text(
@@ -53,8 +61,7 @@ fun LoginScreen() {
                     fontWeight = FontWeight.Light
                 )
             }
-            var text by remember { mutableStateOf("") }
-            val focusRequester = remember { FocusRequester() }
+
             Box(
                 Modifier
                     .weight(1f)
@@ -62,30 +69,25 @@ fun LoginScreen() {
                     .padding(start = 40.dp, end = 40.dp)
             ) {
                 OutlinedTextField(
-                    value = text,
+                    value = serverAddress,
                     label = { Text(text = "Server address") },
-                    onValueChange = { text = it },
+                    onValueChange = { serverAddress = it },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.White,
                         unfocusedBorderColor = Color.White,
                         unfocusedLabelColor = Color.White,
                         focusedLabelColor = Color.White
                     ),
+
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                 )
 
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-
                 IconButton(
-                    onClick = { /*TODO*/ },
-                    Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(top = 8.dp),
+                    onClick = { loginEvents(LoginEvents.OnAddressConfirmed(serverAddress)) },
+                    Modifier.align(Alignment.CenterEnd).padding(top = 8.dp),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
@@ -104,6 +106,6 @@ fun LoginScreen() {
 @Preview
 fun LoginScreenPreview() {
     AppTheme(false) {
-        LoginScreen()
+        LoginScreen(loginEvents = {})
     }
 }

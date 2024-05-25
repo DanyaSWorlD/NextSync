@@ -24,12 +24,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.home.HomeScreen
+import com.next.sync.ui.home.HomeViewModel
+import com.next.sync.ui.login.LoginScreen
+import com.next.sync.ui.login.LoginViewModel
 import com.next.sync.ui.options.DashboardScreen
 import com.next.sync.ui.tasks.NotificationScreen
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    loginViewModel: LoginViewModel = LoginViewModel(),
+    homeViewModel: HomeViewModel = HomeViewModel()
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -57,7 +63,7 @@ fun AppNavigation() {
                 }
 
                 composable(route = Routes.LoginScreen.name) {
-                    LoginScreen()
+                    LoginScreen(loginEvents = loginViewModel::onEvent )
                 }
             }
         }
