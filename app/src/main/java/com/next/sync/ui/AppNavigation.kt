@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,8 +35,8 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun AppNavigation(
-    loginViewModel: LoginViewModel = LoginViewModel(),
-    homeViewModel: HomeViewModel = HomeViewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    homeViewModel: HomeViewModel = viewModel()
 ) {
     val navController = rememberNavController()
 
@@ -72,7 +73,9 @@ fun AppNavigation(
                 }
 
                 composable(route = Routes.LoginScreen.name) {
-                    LoginScreen(loginEvents = loginViewModel::onEvent)
+                    LoginScreen(
+                        loginState = loginViewModel.loginState,
+                        loginEvents = loginViewModel::onEvent)
                 }
             }
         }
