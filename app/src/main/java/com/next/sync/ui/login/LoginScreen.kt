@@ -29,15 +29,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.next.sync.R
 import com.next.sync.ui.events.LoginEvents
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel = viewModel(),
-    loginEvents: (LoginEvents) -> Unit
+    loginEvents: (LoginEvents) -> Unit,
+    loginState: LoginState
 ) {
     var serverAddress by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -75,9 +74,9 @@ fun LoginScreen(
                     .padding(start = 40.dp, end = 40.dp)
             ) {
                 OutlinedTextField(
-                    value = loginViewModel.serverAddress,
+                    value = loginState.serverAddress,
                     label = { Text(text = "Server address") },
-                    onValueChange = { loginViewModel.changeServerAddress(it) },
+                    onValueChange = { loginEvents(LoginEvents.UpdateServerAddress(it)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.White,
                         unfocusedBorderColor = Color.White,
@@ -114,6 +113,6 @@ fun LoginScreen(
 @Preview
 fun LoginScreenPreview() {
     AppTheme(false) {
-        LoginScreen(loginEvents = {})
+        LoginScreen(loginEvents = {}, loginState = LoginState())
     }
 }
