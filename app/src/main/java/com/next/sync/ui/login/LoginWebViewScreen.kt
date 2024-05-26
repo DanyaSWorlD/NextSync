@@ -8,7 +8,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun loginWebViewScreen(loginState: LoginState)
+fun LoginWebViewScreen(loginState: LoginState)
 {
     // Adding a WebView inside AndroidView
     // with layout as full screen

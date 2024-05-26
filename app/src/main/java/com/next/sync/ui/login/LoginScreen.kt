@@ -14,10 +14,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,15 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
+import com.next.sync.ui.Routes
 import com.next.sync.ui.events.LoginEvents
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun LoginScreen(
     loginEvents: (LoginEvents) -> Unit,
-    loginState: LoginState
+    loginState: LoginState,
+    navigate: (String) -> Unit
 ) {
-    var serverAddress by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
@@ -91,7 +89,7 @@ fun LoginScreen(
                 )
 
                 IconButton(
-                    onClick = { loginEvents(LoginEvents.OnAddressConfirmed(serverAddress)) },
+                    onClick = { navigate.invoke(Routes.LoginWebViewScreen.name) },//loginEvents(LoginEvents.OnAddressConfirmed(loginState.serverAddress)) },
                     Modifier
                         .align(Alignment.CenterEnd)
                         .padding(top = 8.dp),
@@ -113,6 +111,6 @@ fun LoginScreen(
 @Preview
 fun LoginScreenPreview() {
     AppTheme(false) {
-        LoginScreen(loginEvents = {}, loginState = LoginState())
+        LoginScreen(loginEvents = {}, loginState = LoginState(), navigate = {""})
     }
 }

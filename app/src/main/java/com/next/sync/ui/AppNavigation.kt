@@ -28,6 +28,7 @@ import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.home.HomeScreen
 import com.next.sync.ui.home.HomeViewModel
 import com.next.sync.ui.login.LoginScreen
+import com.next.sync.ui.login.LoginWebViewScreen
 import com.next.sync.ui.login.LoginViewModel
 import com.next.sync.ui.options.DashboardScreen
 import com.next.sync.ui.tasks.NotificationScreen
@@ -39,10 +40,10 @@ fun AppNavigation(
     homeViewModel: HomeViewModel = viewModel()
 ) {
     val navController = rememberNavController()
-
+    val navigate : (String) -> Unit = { route -> navController.navigate(route) }
 
     LaunchedEffect(loginViewModel.loginState.isLoggedIn) {
-        navController.navigate(BottomBarScreen.Home.route)
+        //navController.navigate(BottomBarScreen.Home.route)
     }
 
     Scaffold(
@@ -58,7 +59,7 @@ fun AppNavigation(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = BottomBarScreen.Home.route
+                startDestination = Routes.LoginScreen.name
             ) {
                 composable(route = BottomBarScreen.Home.route) {
                     HomeScreen(onNavigate = { _ -> navController.navigate(BottomBarScreen.Tasks.route) })
@@ -75,7 +76,12 @@ fun AppNavigation(
                 composable(route = Routes.LoginScreen.name) {
                     LoginScreen(
                         loginState = loginViewModel.loginState,
-                        loginEvents = loginViewModel::onEvent)
+                        loginEvents = loginViewModel::onEvent,
+                        navigate = navigate)
+                }
+
+                composable(route = Routes.LoginWebViewScreen.name){
+                    LoginWebViewScreen(loginState = loginViewModel.loginState)
                 }
             }
         }
