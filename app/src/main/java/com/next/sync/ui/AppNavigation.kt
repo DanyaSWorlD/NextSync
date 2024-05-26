@@ -28,8 +28,8 @@ import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.home.HomeScreen
 import com.next.sync.ui.home.HomeViewModel
 import com.next.sync.ui.login.LoginScreen
-import com.next.sync.ui.login.LoginWebViewScreen
 import com.next.sync.ui.login.LoginViewModel
+import com.next.sync.ui.login.LoginWebViewScreen
 import com.next.sync.ui.options.DashboardScreen
 import com.next.sync.ui.tasks.NotificationScreen
 import com.next.sync.ui.theme.AppTheme
@@ -81,7 +81,7 @@ fun AppNavigation(
                 }
 
                 composable(route = Routes.LoginWebViewScreen.name){
-                    LoginWebViewScreen(loginState = loginViewModel.loginState)
+                    LoginWebViewScreen(loginState = loginViewModel.loginState, navigate = navigate)
                 }
             }
         }
