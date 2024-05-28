@@ -37,13 +37,15 @@ import com.next.sync.ui.theme.AppTheme
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = viewModel(),
 ) {
     val navController = rememberNavController()
-    val navigate : (String) -> Unit = { route -> navController.navigate(route) }
+    val navigate: (String) -> Unit = { route -> navController.navigate(route) }
 
-    LaunchedEffect(loginViewModel.loginState.isLoggedIn) {
-        //navController.navigate(BottomBarScreen.Home.route)
+    if (loginViewModel.loginState.isLoggedIn) {
+        LaunchedEffect(null) {
+            navController.navigate(BottomBarScreen.Home.route)
+        }
     }
 
     Scaffold(
@@ -62,7 +64,7 @@ fun AppNavigation(
                 startDestination = Routes.LoginScreen.name
             ) {
                 composable(route = BottomBarScreen.Home.route) {
-                    HomeScreen(onNavigate = { _ -> navController.navigate(BottomBarScreen.Tasks.route) })
+                    HomeScreen(onNavigate = navigate)
                 }
 
                 composable(route = BottomBarScreen.Tasks.route) {
@@ -77,10 +79,11 @@ fun AppNavigation(
                     LoginScreen(
                         loginState = loginViewModel.loginState,
                         loginEvents = loginViewModel::onEvent,
-                        navigate = navigate)
+                        navigate = navigate
+                    )
                 }
 
-                composable(route = Routes.LoginWebViewScreen.name){
+                composable(route = Routes.LoginWebViewScreen.name) {
                     LoginWebViewScreen(loginState = loginViewModel.loginState, navigate = navigate)
                 }
             }
