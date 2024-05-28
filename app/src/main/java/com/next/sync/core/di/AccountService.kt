@@ -14,7 +14,7 @@ class AccountService @Inject constructor(
 
     suspend fun getCurrentAccountId(): Flow<Int> {
         //return dataStore.getPreference(currentAccountIdKey, -1)
-        return flow { -1 }
+        return flow { emit(3) }
     }
 
 
