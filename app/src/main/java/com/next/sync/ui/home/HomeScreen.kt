@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
 import com.next.sync.ui.Routes
+import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.theme.AppTheme
 
 
@@ -46,7 +47,7 @@ fun HomeScreen(
             .padding(start = 8.dp, end = 8.dp)
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { MainCard(onSynchronizeNow = {}, onAddTask = { onNavigate(Routes.TaskScreen.name) }) }
+        item { MainCard(onSynchronizeNow = {}, onAddTask = { onNavigate(BottomBarScreen.Tasks.route) }) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { BatteryCard(onOpenSettings = { onNavigate(Routes.SettingsScreen.name) }) }
