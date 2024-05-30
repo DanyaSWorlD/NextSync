@@ -42,10 +42,7 @@ import com.next.sync.ui.theme.AppTheme
 fun HomeScreen(
     onNavigate: (String) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp)
-    ) {
+    LazyColumn {
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { MainCard(onSynchronizeNow = {}, onAddTask = { onNavigate(BottomBarScreen.Tasks.route) }) }
 
@@ -65,7 +62,9 @@ fun HomeScreen(
 @Composable
 private fun StatusCard() {
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp)
     ) {
         Column {
             Row {
@@ -100,53 +99,56 @@ private fun SyncReportCard(
     onOpenReport: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column()
-        {
-            Row(Modifier.padding(8.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_info_24),
-                    contentDescription = null, // decorative element
-                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
-                )
-                Column {
-                    Box(
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    Box(modifier = Modifier.padding(start = 8.dp, end = 8.dp))
+    {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Column()
+            {
+                Row(Modifier.padding(8.dp)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_info_24),
+                        contentDescription = null, // decorative element
+                        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
+                    )
+                    Column {
+                        Box(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                        ) {
+                            Text(text = "Sync report", fontWeight = FontWeight.Bold)
+                        }
+
+                        Text(text = "10/10 files uploaded")
+                        Text(text = "15MB of bandwidth used")
+                        Text(text = "15 seconds runtime")
+
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(
+                        onClick = { onOpenReport() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp)
                     ) {
-                        Text(text = "Sync report", fontWeight = FontWeight.Bold)
+                        Text(text = "Open report")
                     }
 
-                    Text(text = "10/10 files uploaded")
-                    Text(text = "15MB of bandwidth used")
-                    Text(text = "15 seconds runtime")
-
-                    Spacer(Modifier.height(8.dp))
-                }
-            }
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(
-                    onClick = { onOpenReport() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                ) {
-                    Text(text = "Open report")
-                }
-
-                Button(
-                    onClick = { onDismiss() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.inversePrimary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text(text = "dismiss")
+                    Button(
+                        onClick = { onDismiss() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.inversePrimary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(text = "dismiss")
+                    }
                 }
             }
         }
@@ -157,36 +159,38 @@ private fun SyncReportCard(
 private fun BatteryCard(
     onOpenSettings: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Row(Modifier.padding(8.dp)) {
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_battery_alert_24),
-                contentDescription = null,
-                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
-            )
-            Column {
-
-                Box(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-                ) {
-                    Text(text = "Battery optimisation", fontWeight = FontWeight.Bold)
-                }
-
-                Text(
-                    text = "NextSync working in background to keep your files in sync. " +
-                            "To maintain app stability please disable battery optimisations"
+    Box(modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Row(Modifier.padding(8.dp)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_battery_alert_24),
+                    contentDescription = null,
+                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 16.dp)
                 )
+                Column {
 
-                Button(
-                    onClick = { onOpenSettings() },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .align(Alignment.End)
-                ) {
-                    Text(text = "Open settings")
+                    Box(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    ) {
+                        Text(text = "Battery optimisation", fontWeight = FontWeight.Bold)
+                    }
+
+                    Text(
+                        text = "NextSync working in background to keep your files in sync. " +
+                                "To maintain app stability please disable battery optimisations"
+                    )
+
+                    Button(
+                        onClick = { onOpenSettings() },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.End)
+                    ) {
+                        Text(text = "Open settings")
+                    }
                 }
             }
         }
@@ -198,56 +202,58 @@ fun MainCard(
     onSynchronizeNow: () -> Unit,
     onAddTask: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column {
+    Box(modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Column {
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .weight(1f)
-                        .padding(16.dp)
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SpaceGauge()
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .weight(1f)
+                            .padding(16.dp)
+                    ) {
+                        SpaceGauge()
+                    }
+
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AllTimeStats()
+                    }
                 }
 
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AllTimeStats()
-                }
-            }
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
 
-            Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(
+                        onClick = { onSynchronizeNow() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp)
+                    ) {
+                        Text(text = "Synchronize now")
+                    }
 
-                Button(
-                    onClick = { onSynchronizeNow() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                ) {
-                    Text(text = "Synchronize now")
-                }
-
-                Button(
-                    onClick = { onAddTask() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.inversePrimary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text(text = "Add task")
+                    Button(
+                        onClick = { onAddTask() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.inversePrimary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(text = "Add task")
+                    }
                 }
             }
         }

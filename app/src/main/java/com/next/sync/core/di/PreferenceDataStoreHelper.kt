@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+//https://medium.com/@cetinkaya-ahmet/managing-preference-data-in-android-applications-with-kotlin-and-datastore-42036f512f82
+
 class PreferenceDataStoreHelper @Inject constructor(@ApplicationContext val context: Context) {
     private val dataSource = context.dataStore
 

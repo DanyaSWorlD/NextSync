@@ -1,6 +1,8 @@
 package com.next.sync.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -16,7 +18,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -24,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.next.sync.R
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.home.HomeScreen
 import com.next.sync.ui.home.HomeViewModel
@@ -49,7 +56,12 @@ fun AppNavigation(
     }
 
     Scaffold(
-        topBar = { HomeTopBar() },
+        topBar = {
+            AccountTopBar(
+                loginViewModel.loginState.user,
+                loginViewModel.loginState.serverAddress
+            )
+        },
         bottomBar = { AppBottomBar(navController = navController) },
     ) { paddingValues ->
 
@@ -84,7 +96,11 @@ fun AppNavigation(
                 }
 
                 composable(route = Routes.LoginWebViewScreen.name) {
-                    LoginWebViewScreen(loginState = loginViewModel.loginState, navigate = navigate)
+                    LoginWebViewScreen(
+                        loginState = loginViewModel.loginState,
+                        navigate = navigate,
+                        loginViewModel
+                    )
                 }
             }
         }
@@ -93,14 +109,26 @@ fun AppNavigation(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun HomeTopBar() {
+private fun AccountTopBar(account: String, server: String) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.onSurface
         ),
-
-        title = { Text(text = "Home") }
+        title = {
+            Column {
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                Row {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_https_24),
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                    Text(text = server, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 20.sp)
+                }
+                Text(text = account, fontSize = 16.sp, modifier = Modifier.padding(start = 4.dp))
+            }
+        }
     )
 }
 
@@ -141,6 +169,14 @@ fun AppBottomBar(
                 }
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun AccountTopBarPreview() {
+    AppTheme(false) {
+        AccountTopBar(account = "username", server = "cloud.example.com")
     }
 }
 

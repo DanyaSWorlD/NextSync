@@ -1,11 +1,11 @@
 package com.next.sync.ui.login
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.next.sync.core.db.data.AccountEntity
 import com.next.sync.core.di.AccountService
 import com.next.sync.ui.events.LoginEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +32,19 @@ class LoginViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountService.getCurrentAccountId()
-                .collect { id -> loginState = loginState.copy(isLoggedIn = id > -1) }
+                .collect { id ->
+                    loginState = loginState.copy(isLoggedIn = id > -1)
+
+                    if (!loginState.isLoggedIn) return@collect
+
+                    val account = accountService.getAccountData(id) ?: return@collect
+
+                    loginState = loginState.copy(
+                        serverAddress = account.server,
+                        user = account.user,
+                        password = account.password
+                    )
+                }
         }
     }
 
@@ -50,5 +62,17 @@ class LoginViewModel @Inject constructor(
                 loginState = loginState.copy(serverAddress = event.address)
             }
         }
+    }
+
+    fun logIn(state: LoginState) {
+        loginState = state
+        accountService.saveAccountData(
+            AccountEntity(
+                user = loginState.user,
+                password = loginState.password,
+                server = loginState.serverAddress
+            )
+        )
+        viewModelScope.launch { accountService.setCurrentAccountId(1) }
     }
 }
