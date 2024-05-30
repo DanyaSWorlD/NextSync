@@ -25,7 +25,9 @@ class HomeViewModel : ViewModel() {
 
     fun onEvent(event: HomeEvents) {
         when (event) {
-            HomeEvents.SynchronizeNow -> {}
+            HomeEvents.SynchronizeNow -> {
+
+            }
         }
     }
 }

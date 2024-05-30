@@ -1,11 +1,18 @@
 package com.next.sync.ui
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,7 +24,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.next.sync.R
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.home.HomeScreen
@@ -116,18 +126,47 @@ private fun AccountTopBar(account: String, server: String) {
             titleContentColor = MaterialTheme.colorScheme.onSurface
         ),
         title = {
-            Column {
-                Spacer(modifier = Modifier.padding(top = 8.dp))
-                Row {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_https_24),
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp)
+            Row {
+                Column {
+                    Spacer(modifier = Modifier.padding(top = 8.dp))
+                    Row {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_https_24),
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 4.dp)
+                        )
+                        Text(
+                            text = server,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            lineHeight = 20.sp
+                        )
+                    }
+                    Text(
+                        text = account,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
-                    Text(text = server, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 20.sp)
                 }
-                Text(text = account, fontSize = 16.sp, modifier = Modifier.padding(start = 4.dp))
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .padding(end = 8.dp)
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter("$server/index.php/avatar/$account/512?v=0"),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(44.dp)
+                            .aspectRatio(1f)
+                            .align(Alignment.CenterEnd)
+                            .clip(RoundedCornerShape(100))
+                            .background(MaterialTheme.colorScheme.onBackground)
+                    )
+                }
             }
+
         }
     )
 }
