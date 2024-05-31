@@ -35,16 +35,22 @@ import androidx.compose.ui.unit.sp
 import com.next.sync.R
 import com.next.sync.ui.Routes
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
+import com.next.sync.ui.events.HomeEvents
 import com.next.sync.ui.theme.AppTheme
 
 
 @Composable
 fun HomeScreen(
+    homeEvents: (HomeEvents) -> Unit,
     onNavigate: (String) -> Unit
 ) {
     LazyColumn {
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { MainCard(onSynchronizeNow = {}, onAddTask = { onNavigate(BottomBarScreen.Tasks.route) }) }
+        item {
+            MainCard(
+                onSynchronizeNow = { homeEvents(HomeEvents.SynchronizeNow) },
+                onAddTask = { onNavigate(BottomBarScreen.Tasks.route) })
+        }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { BatteryCard(onOpenSettings = { onNavigate(Routes.SettingsScreen.name) }) }
@@ -343,6 +349,6 @@ fun Tile(@DrawableRes resource: Int, text: String) {
 @Preview
 fun HomeScreenPreview() {
     AppTheme(false) {
-        HomeScreen(onNavigate = {})
+        HomeScreen(homeEvents = {}, onNavigate = {})
     }
 }

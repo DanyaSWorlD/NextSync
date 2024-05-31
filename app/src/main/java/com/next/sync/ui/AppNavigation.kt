@@ -86,7 +86,9 @@ fun AppNavigation(
                 startDestination = Routes.LoginScreen.name
             ) {
                 composable(route = BottomBarScreen.Home.route) {
-                    HomeScreen(onNavigate = navigate)
+                    HomeScreen(
+                        homeEvents = homeViewModel::onEvent,
+                        onNavigate = navigate)
                 }
 
                 composable(route = BottomBarScreen.Tasks.route) {

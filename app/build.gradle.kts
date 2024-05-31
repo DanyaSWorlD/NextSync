@@ -78,6 +78,9 @@ dependencies {
     // dataStore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-    //
+    // coil - image loading lib
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // webDAV
+    implementation("com.github.thegrizzlylabs:sardine-android:0.9")
 }
