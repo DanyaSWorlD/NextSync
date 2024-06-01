@@ -4,12 +4,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.ui.events.HomeEvents
 import com.owncloud.android.lib.common.UserInfo
 import com.owncloud.android.lib.common.operations.RemoteOperationResult
 import com.owncloud.android.lib.resources.users.GetUserInfoRemoteOperation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -33,6 +36,12 @@ class HomeViewModel @Inject constructor(
     var homeState by mutableStateOf(HomeState())
 
     init {
+        viewModelScope.launch(Dispatchers.IO) {
+            getQuota()
+        }
+    }
+
+    private suspend fun getQuota() {
         val client = nextcloudClientHelper.client
 
         val result: RemoteOperationResult<UserInfo> =
