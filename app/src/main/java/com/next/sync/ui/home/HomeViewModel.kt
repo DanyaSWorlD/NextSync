@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.next.sync.core.di.BatteryInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.ui.events.HomeEvents
 import com.owncloud.android.lib.common.UserInfo
@@ -30,12 +31,19 @@ data class HomeState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val nextcloudClientHelper: NextcloudClientHelper
+    private val nextcloudClientHelper: NextcloudClientHelper,
+    private val batteryInfoModule: BatteryInfoModule
 ) : ViewModel() {
 
     var homeState by mutableStateOf(HomeState())
 
     init {
+        viewModelScope.launch {
+            batteryInfoModule.batteryInfo.collect { info ->
+                homeState = homeState.copy(isBatteryCharging = info.isCharging)
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             getQuota()
         }

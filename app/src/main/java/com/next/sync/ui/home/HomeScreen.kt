@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
-import com.next.sync.ui.Routes
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.events.HomeEvents
 import com.next.sync.ui.theme.AppTheme
@@ -60,7 +59,7 @@ fun HomeScreen(
         item { BatteryCard(onOpenSettings = { onNavigate(BottomBarScreen.Options.route) }) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { StatusCard() }
+        item { StatusCard(homeState) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { SyncReportCard(onOpenReport = {}, onDismiss = {}) }
@@ -70,7 +69,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun StatusCard() {
+private fun StatusCard(homeState: HomeState) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,7 +83,10 @@ private fun StatusCard() {
 
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(modifier = Modifier.weight(1f)) {
-                    Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
+                    if (homeState.isBatteryCharging)
+                        Tile(R.drawable.baseline_battery_charging_full_24, "Charging")
+                    else
+                        Tile(R.drawable.baseline_battery_5_bar_24, "Not charging")
                 }
             }
 
