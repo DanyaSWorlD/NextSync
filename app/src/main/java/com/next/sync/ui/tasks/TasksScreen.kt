@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun NotificationScreen() {
+fun TasksScreen() {
     Box(
         modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
