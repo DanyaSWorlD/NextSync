@@ -53,7 +53,7 @@ fun HomeScreen(
         }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { BatteryCard(onOpenSettings = { onNavigate(Routes.SettingsScreen.name) }) }
+        item { BatteryCard(onOpenSettings = { onNavigate(BottomBarScreen.Options.route) }) }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item { StatusCard() }
