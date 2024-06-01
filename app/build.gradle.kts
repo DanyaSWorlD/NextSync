@@ -73,6 +73,7 @@ dependencies {
 
     // hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     // dataStore

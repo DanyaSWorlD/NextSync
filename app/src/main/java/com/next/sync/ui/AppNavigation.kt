@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -53,8 +53,8 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun AppNavigation(
-    loginViewModel: LoginViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val navigate: (String) -> Unit = { route -> navController.navigate(route) }
