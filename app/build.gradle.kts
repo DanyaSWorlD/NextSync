@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin ("kapt")
+    kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("io.objectbox")
 }
@@ -81,6 +81,11 @@ dependencies {
     // coil - image loading lib
     implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // webDAV
-    implementation("com.github.thegrizzlylabs:sardine-android:0.9")
+    // nextcloud
+    implementation("com.github.nextcloud:android-library:2.19.0") {
+        exclude(
+            group = "org.ogce",
+            module = "xpp3"
+        ) // unused in Android and brings wrong Junit version
+    }
 }

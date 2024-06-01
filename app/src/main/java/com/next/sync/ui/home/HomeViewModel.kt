@@ -4,13 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.next.sync.core.di.AccountService
+import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.ui.events.HomeEvents
-import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
+import com.owncloud.android.lib.common.UserInfo
+import com.owncloud.android.lib.common.operations.RemoteOperationResult
+import com.owncloud.android.lib.resources.users.GetUserInfoRemoteOperation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -22,34 +21,34 @@ data class HomeState(
     val nextSync: String = "",
     val allTimeUpload: String = "",
     val allTimeDownload: String = "",
-    val storageUsed: Int = 0,
-    val storageTotal: Int = 0,
+    val storageUsed: Long = 0,
+    val storageTotal: Long = 0,
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val accountService: AccountService
+    private val nextcloudClientHelper: NextcloudClientHelper
 ) : ViewModel() {
 
     var homeState by mutableStateOf(HomeState())
 
+    init {
+        val client = nextcloudClientHelper.client
+
+        val result: RemoteOperationResult<UserInfo> =
+            GetUserInfoRemoteOperation().execute(client)
+
+        val quota = result.resultData.quota
+        homeState = homeState.copy(
+            storageUsed = quota?.used ?: 0,
+            storageTotal = quota?.total ?: 0
+        )
+    }
+
     fun onEvent(event: HomeEvents) {
         when (event) {
             HomeEvents.SynchronizeNow -> {
-                CoroutineScope(Dispatchers.IO).launch {
-                    accountService.getCurrentAccountId().collect { id ->
-                        val data = accountService.getAccountData(id)
 
-                        val sardine = OkHttpSardine()
-                        sardine.setCredentials(data?.user, data?.password)
-
-                        val server = data?.server
-                        val account = data?.user
-
-                        val resources = sardine.getQuota("$server/remote.php/dav/files/$account/")
-                        if(resources == null) return@collect
-                    }
-                }
             }
         }
     }
