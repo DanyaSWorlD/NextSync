@@ -29,11 +29,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.next.sync.BuildConfig
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun OptionsScreen() {
-    LazyColumn {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         item { Item(icon = Icons.Rounded.Settings, text = "Settings") }
         item { Item(icon = Icons.AutoMirrored.Rounded.HelpOutline, text = "Support") }
         item { Item(icon = Icons.Rounded.StarOutline, text = "Rate app") }
@@ -86,7 +87,7 @@ fun Footer() {
         Spacer(modifier = Modifier.width(72.dp))
         Column {
             Text(text = "Next Sync", color = MaterialTheme.colorScheme.outline)
-            Text(text = "Version 0.0.0.1 (1)", color = MaterialTheme.colorScheme.outline)
+            Text(text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})", color = MaterialTheme.colorScheme.outline)
         }
     }
 }
