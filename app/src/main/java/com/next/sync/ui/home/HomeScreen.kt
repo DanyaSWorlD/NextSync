@@ -1,6 +1,7 @@
 package com.next.sync.ui.home
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,14 +43,17 @@ import com.next.sync.ui.theme.AppTheme
 @Composable
 fun HomeScreen(
     homeEvents: (HomeEvents) -> Unit,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    homeState: HomeState
 ) {
     LazyColumn {
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             MainCard(
                 onSynchronizeNow = { homeEvents(HomeEvents.SynchronizeNow) },
-                onAddTask = { onNavigate(BottomBarScreen.Tasks.route) })
+                onAddTask = { onNavigate(BottomBarScreen.Tasks.route) },
+                homeState
+            )
         }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -206,7 +210,8 @@ private fun BatteryCard(
 @Composable
 fun MainCard(
     onSynchronizeNow: () -> Unit,
-    onAddTask: () -> Unit
+    onAddTask: () -> Unit,
+    homeState: HomeState
 ) {
     Box(modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
         Card(
@@ -225,7 +230,7 @@ fun MainCard(
                             .weight(1f)
                             .padding(16.dp)
                     ) {
-                        SpaceGauge()
+                        SpaceGauge(total = homeState.storageTotal, used = homeState.storageUsed)
                     }
 
                     Box(
@@ -267,7 +272,13 @@ fun MainCard(
 }
 
 @Composable
-fun SpaceGauge() {
+fun SpaceGauge(
+    used: Long,
+    total: Long
+) {
+    val percentValue = (total / 100)
+    val percent = if (percentValue == 0.toLong()) 0 else used / percentValue
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -279,16 +290,44 @@ fun SpaceGauge() {
                 .fillMaxSize(),
             contentAlignment = Alignment.BottomCenter
         ) {
-            Text(text = "66%", fontSize = 40.sp, textAlign = TextAlign.Center)
+            Text(text = "$percent%", fontSize = 40.sp, textAlign = TextAlign.Center)
         }
-        Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
-            Text(text = "20/30 GB USED", textAlign = TextAlign.Center)
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            val usedPair = humanify(used.toFloat())
+            val totalPair = humanify(total.toFloat())
+
+            val usedNumber = usedPair.first
+            val usedMetrics = usedPair.second
+            val totalNumber = totalPair.first
+            val totalMetrics = totalPair.second
+
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "$usedNumber $usedMetrics",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Text(
+                    text = "$totalNumber $totalMetrics",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
     }
     CircularProgressIndicator(
         color = MaterialTheme.colorScheme.primary,
         trackColor = MaterialTheme.colorScheme.background,
-        progress = 0.6f,
+        progress = percent / 100f,
         strokeWidth = 10.dp,
         strokeCap = StrokeCap.Round,
         modifier = Modifier.fillMaxSize()
@@ -345,10 +384,51 @@ fun Tile(@DrawableRes resource: Int, text: String) {
     }
 }
 
+val literals = arrayOf("B", "KB", "MB", "GB", "TB", "PB")
+fun humanify(bytes: Float, divides: Int = 0): Pair<String, String> {
+    if (bytes > 1024)
+        return humanify(bytes / 1024, divides + 1)
+
+    var bytesResponse = ""
+
+    if ((bytes * 10).toInt() % 10 == 0)
+        bytesResponse = bytes.toInt().toString()
+    else
+        bytesResponse = String.format("%.1f", bytes)
+
+    return Pair(bytesResponse, literals[divides])
+}
+
 @Composable
 @Preview
 fun HomeScreenPreview() {
     AppTheme(false) {
-        HomeScreen(homeEvents = {}, onNavigate = {})
+        Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
+            HomeScreen(
+                homeEvents = {},
+                onNavigate = {},
+                HomeState(
+                    storageTotal = 32212254720,
+                    storageUsed = 2000000000//21474836480
+                ),
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+fun HomeScreenPreviewDark() {
+    AppTheme(true) {
+        Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
+            HomeScreen(
+                homeEvents = {},
+                onNavigate = {},
+                HomeState(
+                    storageTotal = 32212254720,
+                    storageUsed = 2000000000//21474836480
+                ),
+            )
+        }
     }
 }
