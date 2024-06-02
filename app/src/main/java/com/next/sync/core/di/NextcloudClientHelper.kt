@@ -19,7 +19,7 @@ class NextcloudClientHelper @Inject constructor(
     lateinit var client: NextcloudClient
 
     init {
-        loadService()
+//        loadService()
     }
 
     fun loadService() = runBlocking {

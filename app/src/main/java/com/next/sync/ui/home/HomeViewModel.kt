@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            getQuota()
+//            getQuota()
         }
     }
 
@@ -63,10 +63,8 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onEvent(event: HomeEvents) {
-        when (event) {
-            HomeEvents.SynchronizeNow -> {
-
-            }
-        }
+//        when (event) {
+//            HomeEvents.SynchronizeNow -> {}
+//        }
     }
 }
