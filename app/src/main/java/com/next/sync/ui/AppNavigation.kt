@@ -54,7 +54,7 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun AppNavigation(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
@@ -68,12 +68,16 @@ fun AppNavigation(
 
     Scaffold(
         topBar = {
-            AccountTopBar(
-                loginViewModel.loginState.user,
-                loginViewModel.loginState.serverAddress
-            )
+            if (loginViewModel.loginState.isLoggedIn)
+                AccountTopBar(
+                    loginViewModel.loginState.user,
+                    loginViewModel.loginState.serverAddress
+                )
         },
-        bottomBar = { AppBottomBar(navController = navController) },
+        bottomBar = {
+            if (loginViewModel.loginState.isLoggedIn)
+                AppBottomBar(navController = navController)
+        },
     ) { paddingValues ->
 
         Column(
@@ -118,9 +122,9 @@ fun AppNavigation(
                     )
                 }
 
-                composable(route = Routes.CreateTasksScreen.name) {
-                    CreateTaskScreen()
-                }
+//                composable(route = Routes.CreateTasksScreen.name) {
+//                    CreateTaskScreen()
+//                }
             }
         }
     }
@@ -232,7 +236,7 @@ fun AccountTopBarPreview() {
 @Composable
 fun AppPreview() {
     AppTheme(false) {
-        AppNavigation()
+        AppNavigation(hiltViewModel())
     }
 }
 
@@ -240,6 +244,6 @@ fun AppPreview() {
 @Composable
 fun AppDarkThemePreview() {
     AppTheme(true) {
-        AppNavigation()
+        AppNavigation(hiltViewModel())
     }
 }
