@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowUpward
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.material3.HorizontalDivider
@@ -20,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,20 +30,37 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun LocalFolderPickerScreen(viewModel: FolderPickerLocalViewModel = hiltViewModel()) {
-    FolderPickerScreen(viewModel.getState(), { viewModel.up() }, { name -> viewModel.select(name) })
+fun LocalFolderPickerScreen(
+    viewModel: FolderPickerLocalViewModel = hiltViewModel(),
+    navigateBack: () -> Unit
+) {
+    FolderPickerScreen(
+        viewModel.getState(),
+        { viewModel.up() },
+        { name -> viewModel.select(name) },
+        { viewModel.confirm(navigateBack) }
+    )
 }
 
 @Composable
-fun RemoteFolderPickerScreen(viewModel: FolderPickerRemoteViewModel = hiltViewModel()) {
-    FolderPickerScreen(viewModel.getState(), { viewModel.up() }, { name -> viewModel.select(name) })
+fun RemoteFolderPickerScreen(
+    viewModel: FolderPickerRemoteViewModel = hiltViewModel(),
+    navigateBack: () -> Unit
+) {
+    FolderPickerScreen(
+        viewModel.getState(),
+        { viewModel.up() },
+        { name -> viewModel.select(name) },
+        { viewModel.confirm(navigateBack) },
+    )
 }
 
 @Composable
 private fun FolderPickerScreen(
     state: FolderPickerState,
     up: () -> Unit,
-    open: (String) -> Unit
+    open: (String) -> Unit,
+    confirm: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -48,6 +68,15 @@ private fun FolderPickerScreen(
         Path(state.path) { up() }
         HorizontalDivider()
         Folders(state, open)
+    }
+    Box(
+        contentAlignment = Alignment.BottomEnd, modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp)
+    ) {
+        Button(onClick = confirm) {
+            Icon(imageVector = Icons.Outlined.Check, contentDescription = null)
+        }
     }
 }
 
@@ -104,7 +133,7 @@ fun DashboardScreenPreview() {
                     "/storage/emulated/0/",
                     listOf("folder 1", "folder 2", "folder 3", "folder 4", "folder 5")
                 ),
-                {}, {}
+                {}, {}, {}
             )
         }
     }
@@ -120,7 +149,7 @@ fun DashboardScreenPreviewDark() {
                     "/storage/emulated/0/",
                     listOf("folder 1", "folder 2", "folder 3", "folder 4", "folder 5")
                 ),
-                {}, {}
+                {}, {}, {}
             )
         }
     }

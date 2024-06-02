@@ -4,8 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.next.sync.core.di.DataBus
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class FolderPickerRemoteViewModel : ViewModel(), IFolderPickerViewModel {
+@HiltViewModel
+class FolderPickerRemoteViewModel @Inject constructor(
+    private val bus: DataBus
+) : ViewModel(), IFolderPickerViewModel {
     private var folderState by mutableStateOf(FolderPickerState())
 
     override fun getState(): FolderPickerState {
@@ -17,6 +23,10 @@ class FolderPickerRemoteViewModel : ViewModel(), IFolderPickerViewModel {
     }
 
     override fun up() {
+        TODO("Not yet implemented")
+    }
+
+    override fun confirm(navigateBack: () -> Unit) {
         TODO("Not yet implemented")
     }
 

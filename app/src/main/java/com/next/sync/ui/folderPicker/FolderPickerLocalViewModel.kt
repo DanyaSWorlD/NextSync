@@ -5,9 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.next.sync.core.di.DataBus
+import com.next.sync.core.di.DataBusKey
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
+import javax.inject.Inject
 
-class FolderPickerLocalViewModel : ViewModel(), IFolderPickerViewModel {
+@HiltViewModel
+class FolderPickerLocalViewModel @Inject constructor(
+    private val bus: DataBus
+) : ViewModel(), IFolderPickerViewModel {
     private var folderState by mutableStateOf(FolderPickerState())
     private var file: File? = null
 
@@ -44,6 +51,11 @@ class FolderPickerLocalViewModel : ViewModel(), IFolderPickerViewModel {
         updateState(file!!)
     }
 
+    override fun confirm(navigateBack: () -> Unit) {
+        bus.emit(DataBusKey.LocalPathPick, file?.absolutePath)
+        navigateBack()
+    }
+
     private fun updateState(file: File) {
         val folders = file.listFiles() ?: arrayOf()
 
@@ -53,5 +65,4 @@ class FolderPickerLocalViewModel : ViewModel(), IFolderPickerViewModel {
                 .toList()
         )
     }
-
 }

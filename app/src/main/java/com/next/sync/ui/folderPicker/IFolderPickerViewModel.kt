@@ -9,4 +9,5 @@ interface IFolderPickerViewModel {
     fun getState(): FolderPickerState
     fun select(folder: String)
     fun up()
+    fun confirm(navigateBack: () -> Unit)
 }

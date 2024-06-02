@@ -61,6 +61,7 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val navigate: (String) -> Unit = { route -> navController.navigate(route) }
+    val navigateBack: () -> Unit = { navController.popBackStack() }
 
     if (loginViewModel.loginState.isLoggedIn)
         LaunchedEffect(null) {
@@ -124,15 +125,15 @@ fun AppNavigation(
                 }
 
                 composable(route = Routes.CreateTasksScreen.name) {
-                    CreateTaskScreen(navigate)
+                    CreateTaskScreen(navigate = navigate)
                 }
 
                 composable(route = Routes.FolderPickerLocalScreen.name) {
-                    LocalFolderPickerScreen()
+                    LocalFolderPickerScreen(navigateBack = navigateBack)
                 }
 
                 composable(route = Routes.FolderPickerRemoteScreen.name) {
-                    RemoteFolderPickerScreen()
+                    RemoteFolderPickerScreen(navigateBack = navigateBack)
                 }
             }
         }

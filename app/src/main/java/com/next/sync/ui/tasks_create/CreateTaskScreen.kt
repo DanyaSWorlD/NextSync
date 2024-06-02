@@ -30,34 +30,48 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.next.sync.ui.Routes
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun CreateTaskScreen(navigate: (String) -> Unit) {
+fun CreateTaskScreen(
+    viewModel: CreateTaskViewModel = hiltViewModel(), navigate: (String) -> Unit
+) {
+    CreateTaskScreen(
+        viewModel.state,
+        { n -> viewModel.setName(n) },
+        { viewModel.openLocalPicker(navigate) },
+        { viewModel.openRemotePicker(navigate) })
+}
+
+@Composable
+fun CreateTaskScreen(
+    state: CreateTaskState,
+    nameUpdate: (String) -> Unit,
+    navigateLocal: () -> Unit,
+    navigateRemote: () -> Unit
+) {
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxSize()
     ) {
         LazyColumn {
-            item { Name() }
+            item { Name(state, nameUpdate) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { Caption(caption = "Synchronisation type") }
             item { Spacer(modifier = Modifier.height(8.dp)) }
             item { SegmentedButton() }
             item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { PathSelector(navigate) }
+            item { PathSelector(state, navigateLocal, navigateRemote) }
 
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -75,12 +89,11 @@ fun CreateTaskScreen(navigate: (String) -> Unit) {
 }
 
 @Composable
-private fun Name() {
-    var name by remember { mutableStateOf("") }
+private fun Name(state: CreateTaskState, nameUpdate: (String) -> Unit) {
     OutlinedTextField(
-        value = name,
+        value = state.name,
         label = { Text(text = "Name") },
-        onValueChange = { name = it },
+        onValueChange = { nameUpdate(it) },
         modifier = Modifier.fillMaxWidth(),
     )
 }
@@ -113,7 +126,8 @@ private fun SegmentedButton() {
 @Composable
 private fun Segment(label: String, state: MutableState<Int>, radioButtonValue: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        RadioButton(selected = radioButtonValue == state.value,
+        RadioButton(
+            selected = radioButtonValue == state.value,
             onClick = { state.value = radioButtonValue })
         Text(text = label)
         Spacer(modifier = Modifier.height(8.dp))
@@ -121,25 +135,29 @@ private fun Segment(label: String, state: MutableState<Int>, radioButtonValue: I
 }
 
 @Composable
-private fun PathSelector(navigate: (String) -> Unit) {
+private fun PathSelector(
+    state: CreateTaskState,
+    navigateLocal: () -> Unit,
+    navigateRemote: () -> Unit,
+) {
     Row {
         Box(modifier = Modifier.weight(1f)) {
             Folder(
-                "Device folder",
-                "storage/DCIM",
-                click = { navigate(Routes.FolderPickerLocalScreen.name) }
+                "Device folder", state.localPath, navigateLocal
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Box(modifier = Modifier.weight(1f)) {
-            Folder("Cloud folder", click = { navigate(Routes.FolderPickerRemoteScreen.name) })
+            Folder(
+                "Cloud folder", state.remotePath, navigateRemote
+            )
         }
     }
 }
 
 @Composable
 private fun Folder(title: String, path: String? = null, click: () -> Unit) {
-    val pathExists = path != null
+    val pathExists = !path.isNullOrEmpty()
     val folderIcon = if (pathExists) Icons.Outlined.CreateNewFolder else Icons.Outlined.Folder
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -189,7 +207,7 @@ private fun Folder(title: String, path: String? = null, click: () -> Unit) {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen { }
+            CreateTaskScreen(CreateTaskState(), {}, {}, {})
         }
     }
 }
@@ -199,7 +217,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen { }
+            CreateTaskScreen(CreateTaskState(), {}, {}, {})
         }
     }
 }
