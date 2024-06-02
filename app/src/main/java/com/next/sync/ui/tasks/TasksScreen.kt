@@ -29,14 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.next.sync.ui.Routes
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun TasksScreen() {
+fun TasksScreen(navigate: (String) -> Unit) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = { navigate(Routes.CreateTasksScreen.name) },
             ) {
                 Icon(Icons.Filled.Add, "Floating action button.")
             }
@@ -95,7 +96,7 @@ fun MasterSwitch() {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            TasksScreen()
+            TasksScreen {}
         }
     }
 }
@@ -105,7 +106,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            TasksScreen()
+            TasksScreen {}
         }
     }
 }

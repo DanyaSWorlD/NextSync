@@ -114,6 +114,6 @@ fun LoginScreen(
 @Preview
 fun LoginScreenPreview() {
     AppTheme(false) {
-        LoginScreen(loginEvents = {}, loginState = LoginState(), navigate = {""})
+        LoginScreen(loginEvents = {}, loginState = LoginState(), navigate = {})
     }
 }

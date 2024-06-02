@@ -49,6 +49,7 @@ import com.next.sync.ui.login.LoginViewModel
 import com.next.sync.ui.login.LoginWebViewScreen
 import com.next.sync.ui.options.OptionsScreen
 import com.next.sync.ui.tasks.TasksScreen
+import com.next.sync.ui.tasks_create.CreateTaskScreen
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
@@ -89,11 +90,12 @@ fun AppNavigation(
                     HomeScreen(
                         homeEvents = homeViewModel::onEvent,
                         onNavigate = navigate,
-                        homeState = homeViewModel.homeState)
+                        homeState = homeViewModel.homeState
+                    )
                 }
 
                 composable(route = BottomBarScreen.Tasks.route) {
-                    TasksScreen()
+                    TasksScreen(navigate)
                 }
 
                 composable(route = BottomBarScreen.Options.route) {
@@ -114,6 +116,10 @@ fun AppNavigation(
                         navigate = navigate,
                         loginViewModel
                     )
+                }
+
+                composable(route = Routes.CreateTasksScreen.name) {
+                    CreateTaskScreen()
                 }
             }
         }

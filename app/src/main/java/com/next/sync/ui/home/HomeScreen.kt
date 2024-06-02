@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.next.sync.R
+import com.next.sync.ui.Routes
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
 import com.next.sync.ui.events.HomeEvents
 import com.next.sync.ui.theme.AppTheme
@@ -50,7 +51,7 @@ fun HomeScreen(
         item {
             MainCard(
                 onSynchronizeNow = { homeEvents(HomeEvents.SynchronizeNow) },
-                onAddTask = { onNavigate(BottomBarScreen.Tasks.route) },
+                onAddTask = { onNavigate(Routes.CreateTasksScreen.name) },
                 homeState
             )
         }
