@@ -37,8 +37,8 @@ class HomeViewModel @Inject constructor(
 
     var homeState by mutableStateOf(HomeState())
 
-    init {
-        viewModelScope.launch {
+    fun launch() {
+        viewModelScope.launch(Dispatchers.IO) {
             batteryInfoModule.batteryInfo.collect { info ->
                 homeState = homeState.copy(isBatteryCharging = info.isCharging)
             }
@@ -50,7 +50,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getQuota() {
-        val client = nextcloudClientHelper.client
+        var client = nextcloudClientHelper.client
+
+        if (client == null) {
+            nextcloudClientHelper.loadService()
+            client = nextcloudClientHelper.client ?: return
+        }
 
         val result: RemoteOperationResult<UserInfo> =
             GetUserInfoRemoteOperation().execute(client)

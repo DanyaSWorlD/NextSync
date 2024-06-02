@@ -37,12 +37,15 @@ class LoginViewModel @Inject constructor(
             isLoggedIn = id > -1
         )
 
-        if (loginState.isLoggedIn)
-            viewModelScope.launch { readCurrentAccount(id) }
+        if (loginState.isLoggedIn) viewModelScope.launch { readCurrentAccount(id) }
     }
 
     private fun getId(): Long = runBlocking {
         return@runBlocking accountService.getCurrentAccountId()
+    }
+
+    private fun setId(id: Long) = runBlocking {
+        accountService.setCurrentAccountId(id)
     }
 
     private fun readCurrentAccount(id: Long) {
@@ -73,13 +76,13 @@ class LoginViewModel @Inject constructor(
 
     fun logIn(state: LoginState) {
         loginState = state
-        accountService.saveAccountData(
+        val id = accountService.saveAccountData(
             AccountEntity(
                 user = loginState.user,
                 password = loginState.password,
                 server = loginState.serverAddress
             )
         )
-        viewModelScope.launch { accountService.setCurrentAccountId(1) }
+        setId(id)
     }
 }

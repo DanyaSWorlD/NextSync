@@ -28,29 +28,33 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun LocalFolderPickerScreen(viewModel: FolderPickerLocalViewModel = hiltViewModel()) {
-    FolderPickerScreen(viewModel)
+    FolderPickerScreen(viewModel.getState(), { viewModel.up() }, { name -> viewModel.select(name) })
 }
 
 @Composable
 fun RemoteFolderPickerScreen(viewModel: FolderPickerRemoteViewModel = hiltViewModel()) {
-    FolderPickerScreen(viewModel)
+    FolderPickerScreen(viewModel.getState(), { viewModel.up() }, { name -> viewModel.select(name) })
 }
 
 @Composable
-private fun FolderPickerScreen(viewModel: IFolderPickerViewModel) {
+private fun FolderPickerScreen(
+    state: FolderPickerState,
+    up: () -> Unit,
+    open: (String) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Path(viewModel.getState().path)
+        Path(state.path) { up }
         HorizontalDivider()
-        Folders(viewModel)
+        Folders(state, open)
     }
 }
 
 @Composable
-private fun Path(path: String) {
+private fun Path(path: String, up: () -> Unit) {
     Row {
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = up) {
             Icon(imageVector = Icons.Outlined.ArrowUpward, contentDescription = "Up")
         }
         Icon(
@@ -63,11 +67,11 @@ private fun Path(path: String) {
 }
 
 @Composable
-private fun Folders(viewModel: IFolderPickerViewModel) {
+private fun Folders(state: FolderPickerState, click: (String) -> Unit) {
     LazyColumn {
-        items(items = viewModel.getState().folders) { folder ->
+        items(items = state.folders) { folder ->
             Folder(name = folder) { name ->
-                viewModel.select(name)
+                click(name)
             }
         }
     }
@@ -95,7 +99,13 @@ private fun Folder(name: String, click: (String) -> Unit) {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            LocalFolderPickerScreen()
+            FolderPickerScreen(
+                FolderPickerState(
+                    "/storage/emulated/0/",
+                    listOf("folder 1", "folder 2", "folder 3", "folder 4", "folder 5")
+                ),
+                {}, {}
+            )
         }
     }
 }
@@ -105,7 +115,13 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            LocalFolderPickerScreen()
+            FolderPickerScreen(
+                FolderPickerState(
+                    "/storage/emulated/0/",
+                    listOf("folder 1", "folder 2", "folder 3", "folder 4", "folder 5")
+                ),
+                {}, {}
+            )
         }
     }
 }
