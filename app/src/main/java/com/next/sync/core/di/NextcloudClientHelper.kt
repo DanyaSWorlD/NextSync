@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import com.nextcloud.common.NextcloudClient
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.Credentials
@@ -19,12 +18,12 @@ class NextcloudClientHelper @Inject constructor(
     lateinit var client: NextcloudClient
 
     init {
-//        loadService()
+        loadService()
     }
 
     fun loadService() = runBlocking {
         launch {
-            val id = accountService.getCurrentAccountId().first()
+            val id = accountService.getCurrentAccountId()
             val account = accountService.getAccountData(id)
 
             val credentials: String = Credentials.basic(account!!.user, account.password)

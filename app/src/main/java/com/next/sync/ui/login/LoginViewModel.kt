@@ -10,13 +10,13 @@ import com.next.sync.core.di.AccountService
 import com.next.sync.ui.events.LoginEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 
 //Can be renamed
 data class LoginState(
     val isLoggedIn: Boolean = false,
-    val hasFinishedStartUp: Boolean = false,
     val serverAddress: String = "",
     var loginFlow: String = "/index.php/login/flow",
     val user: String = "",
@@ -30,6 +30,31 @@ class LoginViewModel @Inject constructor(
 
     var loginState by mutableStateOf(LoginState())
 
+    init {
+        val id = getId()
+
+        loginState = loginState.copy(
+            isLoggedIn = id > -1
+        )
+
+        if (loginState.isLoggedIn)
+            viewModelScope.launch { readCurrentAccount(id) }
+    }
+
+    private fun getId(): Long = runBlocking {
+        return@runBlocking accountService.getCurrentAccountId()
+    }
+
+    private fun readCurrentAccount(id: Long) {
+        val account = accountService.getAccountData(id) ?: return
+
+        loginState = loginState.copy(
+            serverAddress = account.server,
+            user = account.user,
+            password = account.password,
+        )
+    }
+
     fun onEvent(event: LoginEvents) {
         when (event) {
             is LoginEvents.OnAddressConfirmed -> {
@@ -42,26 +67,6 @@ class LoginViewModel @Inject constructor(
 
             is LoginEvents.UpdateServerAddress -> {
                 loginState = loginState.copy(serverAddress = event.address)
-            }
-
-            LoginEvents.OnStart -> viewModelScope.launch{
-                accountService.getCurrentAccountId()
-                    .collect { id ->
-                        loginState = loginState.copy(
-                            isLoggedIn = id > -1,
-                            hasFinishedStartUp = true
-                            )
-
-                        if (!loginState.isLoggedIn) return@collect
-
-                        val account = accountService.getAccountData(id) ?: return@collect
-
-                        loginState = loginState.copy(
-                            serverAddress = account.server,
-                            user = account.user,
-                            password = account.password,
-                        )
-                    }
             }
         }
     }

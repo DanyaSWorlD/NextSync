@@ -1,6 +1,7 @@
 package com.next.sync.ui.tasks_create
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,10 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.next.sync.ui.Routes
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
-fun CreateTaskScreen() {
+fun CreateTaskScreen(navigate: (String) -> Unit) {
     Column(
         Modifier
             .padding(8.dp)
@@ -55,13 +57,12 @@ fun CreateTaskScreen() {
             item { Spacer(modifier = Modifier.height(8.dp)) }
             item { SegmentedButton() }
             item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { PathSelector() }
+            item { PathSelector(navigate) }
 
         }
         Spacer(modifier = Modifier.weight(1f))
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(80.dp))
             Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
@@ -95,12 +96,10 @@ private fun SegmentedButton() {
     OutlinedCard(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
-        ),
-        modifier = Modifier.fillMaxWidth()
+        ), modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxSize()
+            horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxSize()
         ) {
             Segment(label = "To device", state = state, radioButtonValue = 1)
             VerticalDivider(Modifier.height(80.dp))
@@ -114,8 +113,7 @@ private fun SegmentedButton() {
 @Composable
 private fun Segment(label: String, state: MutableState<Int>, radioButtonValue: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        RadioButton(
-            selected = radioButtonValue == state.value,
+        RadioButton(selected = radioButtonValue == state.value,
             onClick = { state.value = radioButtonValue })
         Text(text = label)
         Spacer(modifier = Modifier.height(8.dp))
@@ -123,20 +121,24 @@ private fun Segment(label: String, state: MutableState<Int>, radioButtonValue: I
 }
 
 @Composable
-private fun PathSelector() {
+private fun PathSelector(navigate: (String) -> Unit) {
     Row {
         Box(modifier = Modifier.weight(1f)) {
-            Folder("Device folder", "storage/DCIM")
+            Folder(
+                "Device folder",
+                "storage/DCIM",
+                click = { navigate(Routes.FolderPickerLocalScreen.name) }
+            )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Box(modifier = Modifier.weight(1f)) {
-            Folder("Cloud folder")
+            Folder("Cloud folder", click = { navigate(Routes.FolderPickerRemoteScreen.name) })
         }
     }
 }
 
 @Composable
-private fun Folder(title: String, path: String? = null) {
+private fun Folder(title: String, path: String? = null, click: () -> Unit) {
     val pathExists = path != null
     val folderIcon = if (pathExists) Icons.Outlined.CreateNewFolder else Icons.Outlined.Folder
 
@@ -144,7 +146,9 @@ private fun Folder(title: String, path: String? = null) {
         Caption(title)
         Spacer(modifier = Modifier.height(8.dp))
         Card(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { click() },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
             Column {
@@ -185,7 +189,7 @@ private fun Folder(title: String, path: String? = null) {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen()
+            CreateTaskScreen { }
         }
     }
 }
@@ -195,7 +199,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen()
+            CreateTaskScreen { }
         }
     }
 }

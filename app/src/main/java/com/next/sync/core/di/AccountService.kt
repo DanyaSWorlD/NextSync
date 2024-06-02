@@ -6,7 +6,6 @@ import com.next.sync.core.db.data.AccountEntity
 import com.next.sync.core.db.data.AccountEntity_
 import io.objectbox.kotlin.and
 import io.objectbox.kotlin.boxFor
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,8 +15,8 @@ class AccountService @Inject constructor(
 ) {
     private val currentAccountIdKey = longPreferencesKey("CURRENT_ACCOUNT_ID")
 
-    suspend fun getCurrentAccountId(): Flow<Long> {
-        return dataStore.getPreference(currentAccountIdKey, -1)
+    suspend fun getCurrentAccountId(): Long {
+        return dataStore.getFirstPreference(currentAccountIdKey, -1)
     }
 
     suspend fun setCurrentAccountId(preference: Long) {
@@ -52,7 +51,7 @@ class AccountService @Inject constructor(
         val results = query.find()
         query.close()
 
-        if(results.any())
+        if (results.any())
             return results.first()
 
         return null

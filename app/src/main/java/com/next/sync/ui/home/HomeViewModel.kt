@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-//            getQuota()
+            getQuota()
         }
     }
 

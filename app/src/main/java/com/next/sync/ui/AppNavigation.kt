@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +41,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.next.sync.R
 import com.next.sync.ui.components.bottom_bar.BottomBarScreen
+import com.next.sync.ui.folderPicker.LocalFolderPickerScreen
+import com.next.sync.ui.folderPicker.RemoteFolderPickerScreen
 import com.next.sync.ui.home.HomeScreen
 import com.next.sync.ui.home.HomeViewModel
 import com.next.sync.ui.login.LoginScreen
@@ -54,17 +55,11 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun AppNavigation(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     val navigate: (String) -> Unit = { route -> navController.navigate(route) }
-
-    if (loginViewModel.loginState.isLoggedIn) {
-        LaunchedEffect(null) {
-            navController.navigate(BottomBarScreen.Home.route)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -88,7 +83,7 @@ fun AppNavigation(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Routes.LoginScreen.name
+                startDestination = if (loginViewModel.loginState.isLoggedIn) BottomBarScreen.Home.route else Routes.LoginScreen.name
             ) {
                 composable(route = BottomBarScreen.Home.route) {
                     HomeScreen(
@@ -122,9 +117,17 @@ fun AppNavigation(
                     )
                 }
 
-//                composable(route = Routes.CreateTasksScreen.name) {
-//                    CreateTaskScreen()
-//                }
+                composable(route = Routes.CreateTasksScreen.name) {
+                    CreateTaskScreen(navigate)
+                }
+
+                composable(route = Routes.FolderPickerLocalScreen.name) {
+                    LocalFolderPickerScreen()
+                }
+
+                composable(route = Routes.FolderPickerRemoteScreen.name) {
+                    RemoteFolderPickerScreen()
+                }
             }
         }
     }
