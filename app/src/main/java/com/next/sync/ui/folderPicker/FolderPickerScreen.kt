@@ -45,7 +45,7 @@ private fun FolderPickerScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Path(state.path) { up }
+        Path(state.path) { up() }
         HorizontalDivider()
         Folders(state, open)
     }
