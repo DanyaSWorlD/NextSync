@@ -3,12 +3,10 @@ package com.next.sync
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.next.sync.ui.AppNavigation
-import com.next.sync.ui.login.LoginViewModel
 import com.next.sync.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
