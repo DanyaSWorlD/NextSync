@@ -30,7 +30,7 @@ fun LoginWebViewScreen(
         }
     }, update = {
         it.loadUrl(
-            loginState.serverAddress.plus(loginState.loginFlow),
+            "https://${loginState.serverAddress}/index.php/login/flow",
             mapOf("OCS-APIREQUEST" to "true")
         )
     })

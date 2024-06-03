@@ -18,7 +18,6 @@ import javax.inject.Inject
 data class LoginState(
     val isLoggedIn: Boolean = false,
     val serverAddress: String = "",
-    var loginFlow: String = "/index.php/login/flow",
     val user: String = "",
     val password: String = ""
 )
