@@ -1,7 +1,6 @@
 package com.next.sync.core.di
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -9,10 +8,13 @@ import javax.inject.Singleton
 @Singleton
 class DataBus @Inject constructor() {
     val store = mutableMapOf<String, Any?>()
-    var keysFlow = MutableStateFlow("")
+    var keysFlow = MutableStateFlow(Pair<Long, String>(0, ""))
+
+    var id: Long = 0
+
     fun emit(key: String, value: Any?) {
         store[key] = value
-        keysFlow.value = key
+        keysFlow.value = Pair(++id, key)
     }
 
     fun consume(key: String): Any? {
@@ -22,8 +24,9 @@ class DataBus @Inject constructor() {
     }
 
     suspend fun consume(key: String, callback: (Any?) -> Unit) {
-        val value = keysFlow.filter { flowKey -> flowKey == key }.first()
-        callback(consume(value))
+        val index = id
+        val value = keysFlow.first { it.first != index && it.second == key }
+        callback(consume(value.second))
     }
 
     inline fun <reified T> tryCast(instance: Any?, block: T.() -> Unit) {
