@@ -29,35 +29,37 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.next.sync.core.model.SyncFlowDirection
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun CreateTaskScreen(
     viewModel: CreateTaskViewModel = hiltViewModel(), navigate: (String) -> Unit
 ) {
-    CreateTaskScreen(
-        viewModel.state,
-        { n -> viewModel.setName(n) },
+    CreateTaskScreen(viewModel.state,
+        { viewModel.setName(it) },
+        { viewModel.setDirection(it) },
         { viewModel.openLocalPicker(navigate) },
-        { viewModel.openRemotePicker(navigate) })
+        { viewModel.openRemotePicker(navigate) },
+        { viewModel.save(navigate) })
 }
 
 @Composable
 fun CreateTaskScreen(
     state: CreateTaskState,
     nameUpdate: (String) -> Unit,
+    directionUpdate: (SyncFlowDirection) -> Unit,
     navigateLocal: () -> Unit,
-    navigateRemote: () -> Unit
+    navigateRemote: () -> Unit,
+    save: () -> Unit
 ) {
     Column(
         Modifier
@@ -69,7 +71,7 @@ fun CreateTaskScreen(
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { Caption(caption = "Synchronisation type") }
             item { Spacer(modifier = Modifier.height(8.dp)) }
-            item { SegmentedButton() }
+            item { SegmentedButton(state, directionUpdate) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { PathSelector(state, navigateLocal, navigateRemote) }
 
@@ -79,7 +81,7 @@ fun CreateTaskScreen(
             horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(80.dp))
-            Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+            Button(onClick = save, modifier = Modifier.weight(1f)) {
                 Text(text = "Save")
             }
             Spacer(modifier = Modifier.width(80.dp))
@@ -100,12 +102,11 @@ private fun Name(state: CreateTaskState, nameUpdate: (String) -> Unit) {
 
 @Composable
 private fun Caption(caption: String) {
-    Text(text = caption)
+    Text(text = caption, fontWeight = FontWeight.Bold)
 }
 
 @Composable
-private fun SegmentedButton() {
-    val state = remember { mutableStateOf(3) }
+private fun SegmentedButton(state: CreateTaskState, setDirection: (SyncFlowDirection) -> Unit) {
     OutlinedCard(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
@@ -114,21 +115,26 @@ private fun SegmentedButton() {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxSize()
         ) {
-            Segment(label = "To device", state = state, radioButtonValue = 1)
+            Segment(label = "To device", SyncFlowDirection.ToDevice, state.direction, setDirection)
             VerticalDivider(Modifier.height(80.dp))
-            Segment(label = "Other", state = state, radioButtonValue = 2)
+            Segment(label = "Other", SyncFlowDirection.Other, state.direction, setDirection)
             VerticalDivider(Modifier.height(80.dp))
-            Segment(label = "To cloud", state = state, radioButtonValue = 3)
+            Segment(label = "To cloud", SyncFlowDirection.ToCloud, state.direction, setDirection)
         }
     }
 }
 
 @Composable
-private fun Segment(label: String, state: MutableState<Int>, radioButtonValue: Int) {
+private fun Segment(
+    label: String,
+    radioButtonValue: SyncFlowDirection,
+    direction: SyncFlowDirection,
+    setDirection: (SyncFlowDirection) -> Unit
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         RadioButton(
-            selected = radioButtonValue == state.value,
-            onClick = { state.value = radioButtonValue })
+            selected = radioButtonValue == direction,
+            onClick = { setDirection(radioButtonValue) })
         Text(text = label)
         Spacer(modifier = Modifier.height(8.dp))
     }
@@ -207,7 +213,7 @@ private fun Folder(title: String, path: String? = null, click: () -> Unit) {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen(CreateTaskState(), {}, {}, {})
+            CreateTaskScreen(CreateTaskState(), {}, {}, {}, {}, {})
         }
     }
 }
@@ -217,7 +223,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen(CreateTaskState(), {}, {}, {})
+            CreateTaskScreen(CreateTaskState(), {}, {}, {}, {}, {})
         }
     }
 }

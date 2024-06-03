@@ -1,13 +1,36 @@
 package com.next.sync.ui.tasks
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.next.sync.core.db.ObjectBox
+import com.next.sync.core.db.data.TaskEntity
+import com.next.sync.core.db.data.TaskEntity_
+import com.next.sync.core.di.AccountService
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.objectbox.kotlin.boxFor
+import javax.inject.Inject
 
-class TasksViewModel : ViewModel() {
+data class TaskState(
+    val tasks: List<TaskEntity> = listOf()
+)
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is notifications Fragment"
+@HiltViewModel
+class TasksViewModel @Inject constructor(
+    private val accountService: AccountService
+) : ViewModel() {
+    var state by mutableStateOf(TaskState())
+
+    init {
+        feedData()
     }
-    val text: LiveData<String> = _text
+
+    private fun feedData() {
+        val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
+        val id = accountService.accountId
+        val tasksQuery = taskBox.query(TaskEntity_.accountId.equal(id)).build()
+        state = state.copy(tasks = tasksQuery.find())
+        tasksQuery.close()
+    }
 }

@@ -15,8 +15,17 @@ class AccountService @Inject constructor(
 ) {
     private val currentAccountIdKey = longPreferencesKey("CURRENT_ACCOUNT_ID")
 
+    private var _accountId: Long = -1
+    val accountId: Long
+        get() {
+            return _accountId
+        }
+
+
     suspend fun getCurrentAccountId(): Long {
-        return dataStore.getFirstPreference(currentAccountIdKey, -1)
+        val id = dataStore.getFirstPreference(currentAccountIdKey, -1)
+        _accountId = id
+        return id
     }
 
     suspend fun setCurrentAccountId(preference: Long) {
@@ -26,15 +35,14 @@ class AccountService @Inject constructor(
     fun saveAccountData(account: AccountEntity): Long {
         val accountBox = store.boxFor(AccountEntity::class)
 
-        val query = accountBox
-            .query(AccountEntity_.user.equal(account.user) and AccountEntity_.user.equal(account.server))
-            .build()
+        val query = accountBox.query(
+                AccountEntity_.user.equal(account.user) and AccountEntity_.user.equal(account.server)
+            ).build()
 
         val results = query.find()
         query.close()
 
-        if (results.any())
-            return results.first().id
+        if (results.any()) return results.first().id
 
         accountBox.put(account)
 
@@ -44,15 +52,12 @@ class AccountService @Inject constructor(
     fun getAccountData(accountId: Long): AccountEntity? {
         val accountBox = store.boxFor(AccountEntity::class)
 
-        val query = accountBox
-            .query(AccountEntity_.id.equal(accountId))
-            .build()
+        val query = accountBox.query(AccountEntity_.id.equal(accountId)).build()
 
         val results = query.find()
         query.close()
 
-        if (results.any())
-            return results.first()
+        if (results.any()) return results.first()
 
         return null
     }

@@ -34,7 +34,7 @@
     },
     {
       "id": "2:2661915698967207719",
-      "lastPropertyId": "1:5922170709307854719",
+      "lastPropertyId": "6:1230038137899473441",
       "name": "TaskEntity",
       "properties": [
         {
@@ -42,6 +42,31 @@
           "name": "id",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "2:5477662431013645192",
+          "name": "accountId",
+          "type": 6
+        },
+        {
+          "id": "3:4625137625720250352",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:8199695010899792857",
+          "name": "localPath",
+          "type": 9
+        },
+        {
+          "id": "5:3308648294126079125",
+          "name": "remotePath",
+          "type": 9
+        },
+        {
+          "id": "6:1230038137899473441",
+          "name": "direction",
+          "type": 5
         }
       ],
       "relations": []
