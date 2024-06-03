@@ -90,4 +90,5 @@ dependencies {
             module = "xpp3"
         ) // unused in Android and brings wrong Junit version
     }
+    implementation("commons-httpclient:commons-httpclient:3.1@jar")
 }

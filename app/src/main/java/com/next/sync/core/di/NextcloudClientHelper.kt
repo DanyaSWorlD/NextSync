@@ -2,10 +2,10 @@ package com.next.sync.core.di
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.nextcloud.common.NextcloudClient
+import com.owncloud.android.lib.common.OwnCloudClient
+import com.owncloud.android.lib.common.OwnCloudClientFactory
+import com.owncloud.android.lib.common.OwnCloudCredentialsFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -18,7 +18,8 @@ import javax.inject.Singleton
 class NextcloudClientHelper @Inject constructor(
     @ApplicationContext val context: Context, private val accountService: AccountService
 ) {
-    var client: NextcloudClient? by mutableStateOf(null)
+    var client: NextcloudClient? = null
+    var ownCloudClient: OwnCloudClient? = null
 
     init {
         loadService()
@@ -35,11 +36,16 @@ class NextcloudClientHelper @Inject constructor(
 
             val credentials: String = Credentials.basic(account!!.user, account.password)
             client = NextcloudClient(
-                Uri.parse(account.server),
-                account.user,
-                credentials,
-                context
+                Uri.parse(account.server), account.user, credentials, context
             )
+
+            val serverUri = Uri.parse(account.server)
+            val occ = OwnCloudClientFactory.createOwnCloudClient(serverUri, context, true)
+            occ.credentials = OwnCloudCredentialsFactory.newBasicCredentials(
+                account.user, account.password
+            )
+            occ.userId = account.user
+            ownCloudClient = occ
         }
     }
 }

@@ -15,5 +15,6 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.1.0")
         classpath("io.objectbox:objectbox-gradle-plugin:$objectboxVersion")
+        classpath("commons-httpclient:commons-httpclient:3.1@jar")
     }
 }
