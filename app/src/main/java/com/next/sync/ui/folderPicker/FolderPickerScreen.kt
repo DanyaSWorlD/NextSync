@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Check
@@ -74,7 +75,7 @@ private fun FolderPickerScreen(
 
         if (state.isLoading)
             Loading()
-        
+
         if (state.path.isNotEmpty() && state.folders.any())
             Folders(state, open)
 
@@ -86,8 +87,15 @@ private fun FolderPickerScreen(
             .fillMaxSize()
             .padding(32.dp)
     ) {
-        Button(onClick = confirm, colors = ) {
-            Icon(imageVector = Icons.Outlined.Check, contentDescription = null)
+        Button(
+            onClick = confirm,
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
