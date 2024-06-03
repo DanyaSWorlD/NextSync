@@ -2,9 +2,6 @@ package com.next.sync.core.di
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 class DataBus @Inject constructor() {
@@ -38,22 +35,15 @@ class DataBus @Inject constructor() {
             return
         }
 
-        enterWait { continuation ->
-            exitDelegates.add(Pair(key) {
-                continuation.resume(Unit)
-                callback(it)
-            })
-        }
+        exitDelegates.add(Pair(key) {
+            callback(it)
+        })
     }
 
     inline fun <reified T> tryCast(instance: Any?, block: T.() -> Unit) {
         if (instance is T) {
             block(instance)
         }
-    }
-
-    private suspend fun enterWait(f: (Continuation<Unit>) -> Unit) = suspendCoroutine {
-        f(it)
     }
 }
 
