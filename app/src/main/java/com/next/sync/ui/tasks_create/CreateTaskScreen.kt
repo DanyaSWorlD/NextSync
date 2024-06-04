@@ -38,28 +38,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.next.sync.core.model.SyncFlowDirection
+import com.next.sync.ui.events.CreateTaskEvent
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun CreateTaskScreen(
-    viewModel: CreateTaskViewModel = hiltViewModel(), navigate: (String) -> Unit
+    navigate: (String) -> Unit,
+    viewModel: CreateTaskViewModel = hiltViewModel(),
 ) {
-    CreateTaskScreen(viewModel.state,
-        { viewModel.setName(it) },
-        { viewModel.setDirection(it) },
-        { viewModel.openLocalPicker(navigate) },
-        { viewModel.openRemotePicker(navigate) },
-        { viewModel.save(navigate) })
+    CreateTaskScreen(viewModel.state, viewModel::onEvent, navigate)
 }
 
 @Composable
 fun CreateTaskScreen(
     state: CreateTaskState,
-    nameUpdate: (String) -> Unit,
-    directionUpdate: (SyncFlowDirection) -> Unit,
-    navigateLocal: () -> Unit,
-    navigateRemote: () -> Unit,
-    save: () -> Unit
+    event: (CreateTaskEvent) -> Unit,
+    navigate: (String) -> Unit
 ) {
     Column(
         Modifier
@@ -67,13 +61,13 @@ fun CreateTaskScreen(
             .fillMaxSize()
     ) {
         LazyColumn {
-            item { Name(state, nameUpdate) }
+            item { Name(state, event) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { Caption(caption = "Synchronisation type") }
             item { Spacer(modifier = Modifier.height(8.dp)) }
-            item { SegmentedButton(state, directionUpdate) }
+            item { SegmentedButton(state, event) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { PathSelector(state, navigateLocal, navigateRemote) }
+            item { PathSelector(state, event, navigate) }
 
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -81,7 +75,10 @@ fun CreateTaskScreen(
             horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(80.dp))
-            Button(onClick = save, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = { event(CreateTaskEvent.Save(navigate)) },
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(text = "Save")
             }
             Spacer(modifier = Modifier.width(80.dp))
@@ -91,11 +88,11 @@ fun CreateTaskScreen(
 }
 
 @Composable
-private fun Name(state: CreateTaskState, nameUpdate: (String) -> Unit) {
+private fun Name(state: CreateTaskState, event: (CreateTaskEvent) -> Unit) {
     OutlinedTextField(
         value = state.name,
         label = { Text(text = "Name") },
-        onValueChange = { nameUpdate(it) },
+        onValueChange = { event(CreateTaskEvent.SetName(it)) },
         modifier = Modifier.fillMaxWidth(),
     )
 }
@@ -106,7 +103,7 @@ private fun Caption(caption: String) {
 }
 
 @Composable
-private fun SegmentedButton(state: CreateTaskState, setDirection: (SyncFlowDirection) -> Unit) {
+private fun SegmentedButton(state: CreateTaskState, event: (CreateTaskEvent) -> Unit) {
     OutlinedCard(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
@@ -115,11 +112,11 @@ private fun SegmentedButton(state: CreateTaskState, setDirection: (SyncFlowDirec
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxSize()
         ) {
-            Segment(label = "To device", SyncFlowDirection.ToDevice, state.direction, setDirection)
+            Segment(label = "To device", SyncFlowDirection.ToDevice, state.direction, event)
             VerticalDivider(Modifier.height(80.dp))
-            Segment(label = "Other", SyncFlowDirection.Other, state.direction, setDirection)
+            Segment(label = "Other", SyncFlowDirection.Other, state.direction, event)
             VerticalDivider(Modifier.height(80.dp))
-            Segment(label = "To cloud", SyncFlowDirection.ToCloud, state.direction, setDirection)
+            Segment(label = "To cloud", SyncFlowDirection.ToCloud, state.direction, event)
         }
     }
 }
@@ -129,12 +126,12 @@ private fun Segment(
     label: String,
     radioButtonValue: SyncFlowDirection,
     direction: SyncFlowDirection,
-    setDirection: (SyncFlowDirection) -> Unit
+    event: (CreateTaskEvent) -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         RadioButton(
             selected = radioButtonValue == direction,
-            onClick = { setDirection(radioButtonValue) })
+            onClick = { event(CreateTaskEvent.SetDirection(radioButtonValue)) })
         Text(text = label)
         Spacer(modifier = Modifier.height(8.dp))
     }
@@ -143,20 +140,21 @@ private fun Segment(
 @Composable
 private fun PathSelector(
     state: CreateTaskState,
-    navigateLocal: () -> Unit,
-    navigateRemote: () -> Unit,
+    event: (CreateTaskEvent) -> Unit,
+    navigate: (String) -> Unit
 ) {
     Row {
         Box(modifier = Modifier.weight(1f)) {
             Folder(
-                "Device folder", state.localPath, navigateLocal
-            )
+                "Device folder",
+                state.localPath
+            ) { event(CreateTaskEvent.OpenLocalPicker(navigate)) }
         }
         Spacer(modifier = Modifier.width(8.dp))
         Box(modifier = Modifier.weight(1f)) {
             Folder(
-                "Cloud folder", state.remotePath, navigateRemote
-            )
+                "Cloud folder", state.remotePath
+            ) { event(CreateTaskEvent.OpenRemotePicker(navigate)) }
         }
     }
 }
@@ -213,7 +211,7 @@ private fun Folder(title: String, path: String? = null, click: () -> Unit) {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen(CreateTaskState(), {}, {}, {}, {}, {})
+            CreateTaskScreen(CreateTaskState(), {}, {})
         }
     }
 }
@@ -223,7 +221,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            CreateTaskScreen(CreateTaskState(), {}, {}, {}, {}, {})
+            CreateTaskScreen(CreateTaskState(), {}, {})
         }
     }
 }

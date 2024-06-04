@@ -28,7 +28,7 @@ class DataBus @Inject constructor() {
         return value
     }
 
-    suspend fun consume(key: String, callback: (Any?) -> Unit) {
+    fun consume(key: String, callback: (Any?) -> Unit) {
 
         if (store.containsKey(key)) {
             callback(consume(key))
