@@ -258,6 +258,5 @@ private fun iconByDirection(direction: Int): ImageVector {
         SyncFlowDirection.ToDevice -> Icons.Outlined.ArrowDownward
         null -> Icons.AutoMirrored.Outlined.Help
     }
-
 }
 
