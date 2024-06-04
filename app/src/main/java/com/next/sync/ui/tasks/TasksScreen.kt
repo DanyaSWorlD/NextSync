@@ -9,20 +9,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -45,34 +49,38 @@ import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.extensions.toEnum
 import com.next.sync.core.model.SyncFlowDirection
 import com.next.sync.ui.Routes
+import com.next.sync.ui.events.TasksEvent
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun TasksScreen(navigate: (String) -> Unit, viewModel: TasksViewModel = hiltViewModel()) {
-    TasksScreen(viewModel.state, navigate)
+    TasksScreen(viewModel.state, viewModel::onEvent, navigate)
 }
 
 @Composable
 private fun TasksScreen(
-    state: TaskState,
-    navigate: (String) -> Unit
+    state: TaskState, event: (TasksEvent) -> Unit, navigate: (String) -> Unit
 ) {
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigate(Routes.CreateTasksScreen.name) },
-            ) {
-                Icon(Icons.Filled.Add, "Floating action button.")
-            }
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(
+            onClick = { navigate(Routes.CreateTasksScreen.name) },
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(Icons.Filled.Add, "Floating action button.")
         }
-    )
-    { paddingValues ->
+    }) { paddingValues ->
         LazyColumn(Modifier.padding(paddingValues)) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
             item { MasterSwitch() }
             item { Spacer(modifier = Modifier.height(8.dp)) }
             if (state.tasks.isEmpty()) item { Empty() }
-            items(state.tasks) { Task(it) }
+            items(count = state.tasks.size, key = { state.tasks[it].id }) {
+                Task(
+                    state.tasks[it],
+                    event,
+                    navigate
+                )
+            }
         }
     }
 }
@@ -103,12 +111,10 @@ private fun MasterSwitch() {
                 var checked by remember { mutableStateOf(true) }
 
                 Switch(
-                    checked = checked, onCheckedChange = { checked = it },
+                    checked = checked,
+                    onCheckedChange = { checked = it },
                     modifier = Modifier.padding(
-                        start = 24.dp,
-                        end = 24.dp,
-                        top = 12.dp,
-                        bottom = 12.dp
+                        start = 24.dp, end = 24.dp, top = 12.dp, bottom = 12.dp
                     )
                 )
             }
@@ -117,22 +123,17 @@ private fun MasterSwitch() {
 }
 
 @Composable
-private fun Task(task: TaskEntity) {
+private fun Task(task: TaskEntity, event: (TasksEvent) -> Unit, navigate: (String) -> Unit) {
     Box(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-        ) {
+        Card(modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            onClick = { event(TasksEvent.OpenItem(task.id, navigate)) }) {
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(8.dp, 0.dp, 8.dp, 8.dp)
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = task.name ?: "Task",
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                )
+                CaptionRow(task = task, event)
                 Row {
                     Icon(
                         imageVector = iconByDirection(task.direction),
@@ -160,6 +161,44 @@ private fun PathRow(icon: ImageVector, path: String) {
 }
 
 @Composable
+private fun CaptionRow(task: TaskEntity, event: (TasksEvent) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row {
+        Text(
+            text = task.name ?: "Task",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 12.dp)
+                .weight(1f)
+        )
+        Box {
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = Icons.Outlined.MoreVert,
+                    contentDescription = "Delete"
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("Delete") },
+                    onClick = { event(TasksEvent.Delete(task.id)) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun Empty() {
     Text(
         text = "Add new task via plus button",
@@ -176,7 +215,7 @@ private fun Empty() {
 fun DashboardScreenPreview() {
     AppTheme(false) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            TasksScreen(TaskState(getPreviewData())) {}
+            TasksScreen(TaskState(getPreviewData()), {}) {}
         }
     }
 }
@@ -186,7 +225,7 @@ fun DashboardScreenPreview() {
 fun DashboardScreenPreviewDark() {
     AppTheme(true) {
         Box(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            TasksScreen(TaskState(getPreviewData())) {}
+            TasksScreen(TaskState(getPreviewData()), {}) {}
         }
     }
 }
@@ -194,6 +233,7 @@ fun DashboardScreenPreviewDark() {
 private fun getPreviewData(): List<TaskEntity> {
     return listOf(
         TaskEntity(
+            id = 1,
             accountId = 0,
             name = "Photos",
             localPath = "/DCIM/Camera",
@@ -201,6 +241,7 @@ private fun getPreviewData(): List<TaskEntity> {
             direction = 1
         ),
         TaskEntity(
+            id = 2,
             accountId = 0,
             name = "Screenshots",
             localPath = "/DCIM/Screenshots",

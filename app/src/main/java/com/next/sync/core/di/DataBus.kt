@@ -45,6 +45,12 @@ class DataBus @Inject constructor() {
             block(instance)
         }
     }
+
+    inline fun <reified T> cast(instance: Any?): T? {
+        if (instance is T)
+            return instance
+        return null
+    }
 }
 
 object DataBusKey {

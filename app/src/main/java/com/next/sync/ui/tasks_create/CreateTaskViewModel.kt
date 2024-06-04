@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.next.sync.core.db.ObjectBox
 import com.next.sync.core.db.data.TaskEntity
+import com.next.sync.core.db.data.TaskEntity_
 import com.next.sync.core.di.AccountService
 import com.next.sync.core.di.DataBus
 import com.next.sync.core.di.DataBusKey
+import com.next.sync.core.extensions.toEnum
 import com.next.sync.core.extensions.toInt
 import com.next.sync.core.model.SyncFlowDirection
 import com.next.sync.ui.EventViewModel
@@ -20,6 +22,7 @@ import javax.inject.Inject
 
 
 data class CreateTaskState(
+    val id: Long = 0,
     val localPath: String = "",
     val remotePath: String = "",
     val name: String = "",
@@ -40,6 +43,28 @@ class CreateTaskViewModel @Inject constructor(
         forEvent<CreateTaskEvent.OpenRemotePicker> { openRemotePicker(it) },
         forEvent<CreateTaskEvent.Save> { save(it) },
     )
+
+    init {
+        val id = bus.cast<Long?>(bus.consume(DataBusKey.TaskId))
+
+        if (id != null) {
+            val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
+
+            val tasksQuery = taskBox.query(TaskEntity_.id.equal(id)).build()
+            val task = tasksQuery.findFirst()
+
+            if (task != null) {
+                state = state.copy(
+                    id = task.id,
+                    name = task.name ?: "",
+                    direction = task.direction.toEnum<SyncFlowDirection>()
+                        ?: SyncFlowDirection.ToCloud,
+                    localPath = task.localPath,
+                    remotePath = task.remotePath,
+                )
+            }
+        }
+    }
 
     private fun setName(event: CreateTaskEvent.SetName) {
         state = state.copy(name = event.name)
@@ -73,6 +98,7 @@ class CreateTaskViewModel @Inject constructor(
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
 
         val task = TaskEntity(
+            id = state.id,
             accountId = accountService.accountId,
             name = state.name,
             remotePath = state.remotePath,
