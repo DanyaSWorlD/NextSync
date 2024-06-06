@@ -1,4 +1,4 @@
-package com.next.sync.core.wokers
+package com.next.sync.background.wokers
 
 import android.content.Context
 import android.util.Log

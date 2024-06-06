@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import com.next.sync.core.db.ObjectBox
 import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.db.data.TaskEntity_
-import com.next.sync.core.di.AccountService
+import com.next.sync.core.di.AccountModule
 import com.next.sync.core.di.DataBus
 import com.next.sync.core.di.DataBusKey
 import com.next.sync.core.extensions.toEnum
@@ -31,7 +31,7 @@ data class CreateTaskState(
 
 @HiltViewModel
 class CreateTaskViewModel @Inject constructor(
-    private val accountService: AccountService,
+    private val accountModule: AccountModule,
     private val bus: DataBus,
 ) : EventViewModel<CreateTaskEvent>() {
     var state by mutableStateOf(CreateTaskState())
@@ -99,7 +99,7 @@ class CreateTaskViewModel @Inject constructor(
 
         val task = TaskEntity(
             id = state.id,
-            accountId = accountService.accountId,
+            accountId = accountModule.accountId,
             name = state.name,
             remotePath = state.remotePath,
             localPath = state.localPath,

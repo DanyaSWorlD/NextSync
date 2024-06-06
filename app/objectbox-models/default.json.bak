@@ -70,9 +70,33 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "3:9115567203437314914",
+      "lastPropertyId": "3:4509719944132838460",
+      "name": "DirectoryEntity",
+      "properties": [
+        {
+          "id": "1:2788117749270476845",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2439488569340016104",
+          "name": "directoryPath",
+          "type": 9
+        },
+        {
+          "id": "3:4509719944132838460",
+          "name": "fileMap",
+          "type": 13
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "2:2661915698967207719",
+  "lastEntityId": "3:9115567203437314914",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

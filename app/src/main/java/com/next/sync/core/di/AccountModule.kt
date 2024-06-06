@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AccountService @Inject constructor(
+class AccountModule @Inject constructor(
     private var dataStore: PreferenceDataStoreHelper
 ) {
     private val currentAccountIdKey = longPreferencesKey("CURRENT_ACCOUNT_ID")

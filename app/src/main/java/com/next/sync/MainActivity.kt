@@ -1,6 +1,5 @@
 package com.next.sync
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +10,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.next.sync.core.wokers.SyncCheckWorker
+import com.next.sync.background.wokers.SyncCheckWorker
 import com.next.sync.ui.AppNavigation
 import com.next.sync.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint

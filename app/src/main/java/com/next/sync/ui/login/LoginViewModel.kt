@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.next.sync.core.db.data.AccountEntity
-import com.next.sync.core.di.AccountService
+import com.next.sync.core.di.AccountModule
 import com.next.sync.ui.events.LoginEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,7 +24,7 @@ data class LoginState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val accountService: AccountService
+    private val accountModule: AccountModule
 ) : ViewModel() {
 
     var loginState by mutableStateOf(LoginState())
@@ -40,15 +40,15 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun getId(): Long = runBlocking {
-        return@runBlocking accountService.getCurrentAccountId()
+        return@runBlocking accountModule.getCurrentAccountId()
     }
 
     private fun setId(id: Long) = runBlocking {
-        accountService.setCurrentAccountId(id)
+        accountModule.setCurrentAccountId(id)
     }
 
     private fun readCurrentAccount(id: Long) {
-        val account = accountService.getAccountData(id) ?: return
+        val account = accountModule.getAccountData(id) ?: return
 
         loginState = loginState.copy(
             serverAddress = account.server,
@@ -75,7 +75,7 @@ class LoginViewModel @Inject constructor(
 
     fun logIn(state: LoginState) {
         loginState = state
-        val id = accountService.saveAccountData(
+        val id = accountModule.saveAccountData(
             AccountEntity(
                 user = loginState.user,
                 password = loginState.password,

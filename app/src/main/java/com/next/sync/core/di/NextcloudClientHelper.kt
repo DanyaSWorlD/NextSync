@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class NextcloudClientHelper @Inject constructor(
-    @ApplicationContext val context: Context, private val accountService: AccountService
+    @ApplicationContext val context: Context, private val accountModule: AccountModule
 ) {
     var client: NextcloudClient? = null
     var ownCloudClient: OwnCloudClient? = null
@@ -27,12 +27,12 @@ class NextcloudClientHelper @Inject constructor(
 
     fun loadService() = runBlocking {
         launch {
-            val id = accountService.getCurrentAccountId()
+            val id = accountModule.getCurrentAccountId()
             if (id.toInt() == -1) {
                 return@launch
             }
 
-            val account = accountService.getAccountData(id)
+            val account = accountModule.getAccountData(id)
 
             val credentials: String = Credentials.basic(account!!.user, account.password)
             client = NextcloudClient(
