@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("io.objectbox")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -101,4 +102,6 @@ dependencies {
     androidTestImplementation("androidx.work:work-testing:$workVersion")
     implementation("androidx.work:work-multiprocess:$workVersion")
 
+    // json serialisation
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
