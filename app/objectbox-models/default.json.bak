@@ -1,0 +1,110 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:6957946529485619857",
+      "lastPropertyId": "4:4924977773707355946",
+      "name": "AccountEntity",
+      "properties": [
+        {
+          "id": "1:3758822342226346169",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3261960481250685281",
+          "name": "server",
+          "type": 9
+        },
+        {
+          "id": "3:6580461303630775897",
+          "name": "user",
+          "type": 9
+        },
+        {
+          "id": "4:4924977773707355946",
+          "name": "password",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:2661915698967207719",
+      "lastPropertyId": "6:1230038137899473441",
+      "name": "TaskEntity",
+      "properties": [
+        {
+          "id": "1:5922170709307854719",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5477662431013645192",
+          "name": "accountId",
+          "type": 6
+        },
+        {
+          "id": "3:4625137625720250352",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:8199695010899792857",
+          "name": "localPath",
+          "type": 9
+        },
+        {
+          "id": "5:3308648294126079125",
+          "name": "remotePath",
+          "type": 9
+        },
+        {
+          "id": "6:1230038137899473441",
+          "name": "direction",
+          "type": 5
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:9115567203437314914",
+      "lastPropertyId": "3:4509719944132838460",
+      "name": "DirectoryEntity",
+      "properties": [
+        {
+          "id": "1:2788117749270476845",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2439488569340016104",
+          "name": "directoryPath",
+          "type": 9
+        },
+        {
+          "id": "3:4509719944132838460",
+          "name": "fileMap",
+          "type": 13
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "3:9115567203437314914",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
