@@ -3,10 +3,11 @@ package com.next.sync.ui.home
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.next.sync.core.di.BatteryInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
+import com.next.sync.core.di.SynchronizationModule
+import com.next.sync.ui.EventViewModel
 import com.next.sync.ui.events.HomeEvents
 import com.owncloud.android.lib.common.UserInfo
 import com.owncloud.android.lib.common.operations.RemoteOperationResult
@@ -32,8 +33,13 @@ data class HomeState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val nextcloudClientHelper: NextcloudClientHelper,
-    private val batteryInfoModule: BatteryInfoModule
-) : ViewModel() {
+    private val batteryInfoModule: BatteryInfoModule,
+    private val synchronizationModule: SynchronizationModule
+) : EventViewModel<HomeEvents>() {
+
+    override val events: Map<String, (HomeEvents) -> Unit> = mapOf(
+        forEvent<HomeEvents.SynchronizeNow> { synchronize() }
+    )
 
     var homeState by mutableStateOf(HomeState())
 
@@ -67,9 +73,9 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun onEvent(event: HomeEvents) {
-//        when (event) {
-//            HomeEvents.SynchronizeNow -> {}
-//        }
+    private fun synchronize() {
+        viewModelScope.launch (Dispatchers.IO) {
+            synchronizationModule.synchronizeTask()
+        }
     }
 }

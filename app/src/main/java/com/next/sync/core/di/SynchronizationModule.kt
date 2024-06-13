@@ -27,19 +27,63 @@ class SynchronizationModule @Inject constructor(
         if (state != null)
             fileStateItem = Json.decodeFromString<FileStateItem>(state.folderContent)
 
-        val remoteDiff = getRemoteDiffRecursive(task.remotePath, fileStateItem)
-        val localDiff = getLocalDiffRecursive(File(task.localPath), fileStateItem)
+        val remoteDiff = getRemoteDiffRecursive(task.remotePath, fileStateItem, task.remotePath)
+        val localDiff = getLocalDiffRecursive(File(task.localPath), fileStateItem, task.localPath)
 
+        val conflicts: MutableList<Pair<SyncDiff, SyncDiff>> = mutableListOf()
+        val completeDiff: MutableMap<String, SyncDiff> =
+            localDiff.associate {
+                it.file.relativePath to SyncDiff(
+                    it.file, when (it.option) {
+                        StateOption.Add -> SyncOption.Upload
+                        StateOption.Update -> SyncOption.Upload
+                        StateOption.Remove -> SyncOption.Delete
+                    }
+                )
+            }.toMutableMap()
 
+        for (remote in remoteDiff) {
+            val key = remote.file.relativePath
+            if (!completeDiff.containsKey(key)) {
+                completeDiff[key] = SyncDiff(remote.file, SyncOption.Download)
+                continue
+            }
+
+            // key exist, conflict occurred
+            val existing = completeDiff[key]
+            if (existing!!.option == SyncOption.Delete && remote.option == StateOption.Remove)
+                continue
+
+            if (existing.file.fileSize == remote.file.fileSize
+                && existing.file.lastEdited == remote.file.lastEdited
+            ) {
+                completeDiff[key] = existing.copy(option = SyncOption.Ignore)
+                continue
+            }
+
+            conflicts.add(
+                Pair(
+                    existing, SyncDiff(
+                        remote.file, option = when (remote.option) {
+                            StateOption.Add -> SyncOption.Upload
+                            StateOption.Update -> SyncOption.Upload
+                            StateOption.Remove -> SyncOption.Delete
+                        }
+                    )
+                )
+            )
+        }
     }
 
     private fun getRemoteDiffRecursive(
         path: String?,
-        state: FileStateItem?
-    ): MutableList<FileDiff> {
-        val diff: MutableList<FileDiff> = mutableListOf()
+        state: FileStateItem?,
+        taskRootPath: String
+    ): MutableList<StateDiff> {
+        val diff: MutableList<StateDiff> = mutableListOf()
 
-        val stateFiles = state!!.child.associateBy { getName(it.relativePath) }.toMutableMap()
+        val stateFiles =
+            state?.child?.associateBy { getName(it.relativePath) }?.toMutableMap() ?: mutableMapOf()
         val remoteFiles = getRemoteFiles(path!!)
 
         for (remoteFile in remoteFiles) {
@@ -50,11 +94,16 @@ class SynchronizationModule @Inject constructor(
                 if (stateFiles.containsKey(name))
                     child = stateFiles[name]
                 else {
-                    diff.add(FileDiff(remoteToStateFile(remoteFile), SyncOption.Add))
+                    diff.add(
+                        StateDiff(
+                            remoteToStateFile(remoteFile, taskRootPath, true),
+                            StateOption.Add
+                        )
+                    )
                     stateFiles.remove(name)
                 }
 
-                diff.addAll(getRemoteDiffRecursive(remoteFile.remotePath, child))
+                diff.addAll(getRemoteDiffRecursive(remoteFile.remotePath, child, taskRootPath))
             }
 
             if (stateFiles.containsKey(name)) {
@@ -63,27 +112,29 @@ class SynchronizationModule @Inject constructor(
                 if (remoteFile.size == stateFile?.fileSize)
                     continue
 
-                diff.add(FileDiff(remoteToStateFile(remoteFile), SyncOption.Update))
+                diff.add(StateDiff(remoteToStateFile(remoteFile, taskRootPath), StateOption.Update))
                 stateFiles.remove(name)
             } else {
-                diff.add(FileDiff(remoteToStateFile(remoteFile), SyncOption.Add))
+                diff.add(StateDiff(remoteToStateFile(remoteFile, taskRootPath), StateOption.Add))
                 stateFiles.remove(name)
             }
         }
 
         if (stateFiles.any())
-            diff.addAll(stateFiles.map { FileDiff(it.value, SyncOption.Remove) })
+            diff.addAll(stateFiles.map { StateDiff(it.value, StateOption.Remove) })
 
         return diff
     }
 
     private fun getLocalDiffRecursive(
         file: File?,
-        state: FileStateItem?
-    ): MutableList<FileDiff> {
-        val diff: MutableList<FileDiff> = mutableListOf()
+        state: FileStateItem?,
+        taskRootPath: String
+    ): MutableList<StateDiff> {
+        val diff: MutableList<StateDiff> = mutableListOf()
 
-        val stateFiles = state!!.child.associateBy { getName(it.relativePath) }.toMutableMap()
+        val stateFiles =
+            state?.child?.associateBy { getName(it.relativePath) }?.toMutableMap() ?: mutableMapOf()
         val localFiles = file?.listFiles() ?: arrayOf()
 
         for (localFile in localFiles) {
@@ -94,11 +145,11 @@ class SynchronizationModule @Inject constructor(
                 if (stateFiles.containsKey(name))
                     child = stateFiles[name]
                 else {
-                    diff.add(FileDiff(fileToStateFile(localFile), SyncOption.Add))
+                    diff.add(StateDiff(fileToStateFile(localFile, taskRootPath), StateOption.Add))
                     stateFiles.remove(name)
                 }
 
-                diff.addAll(getLocalDiffRecursive(localFile, child))
+                diff.addAll(getLocalDiffRecursive(localFile, child, taskRootPath))
             }
 
             if (stateFiles.containsKey(name)) {
@@ -107,16 +158,16 @@ class SynchronizationModule @Inject constructor(
                 if (localFile.length() == stateFile?.fileSize)
                     continue
 
-                diff.add(FileDiff(fileToStateFile(localFile), SyncOption.Update))
+                diff.add(StateDiff(fileToStateFile(localFile, taskRootPath), StateOption.Update))
                 stateFiles.remove(name)
             } else {
-                diff.add(FileDiff(fileToStateFile(localFile), SyncOption.Add))
+                diff.add(StateDiff(fileToStateFile(localFile, taskRootPath), StateOption.Add))
                 stateFiles.remove(name)
             }
         }
 
         if (stateFiles.any())
-            diff.addAll(stateFiles.map { FileDiff(it.value, SyncOption.Remove) })
+            diff.addAll(stateFiles.map { StateDiff(it.value, StateOption.Remove) })
 
         return diff
     }
@@ -125,15 +176,16 @@ class SynchronizationModule @Inject constructor(
         val client = nextcloudHelper.ownCloudClient
         val result =
             ReadFolderRemoteOperation(path).execute(client!!)
-        return result.data as List<RemoteFile>
+        val response = result.data as List<RemoteFile>
+        return response.subList(1, response.size)
     }
 
     private fun getName(file: String): String {
         return file.split("/").last { x -> x.isNotEmpty() }
     }
 
-    private fun fileToStateFile(file: File): FileStateItem {
-        val newStateItem = FileStateItem(file.path)
+    private fun fileToStateFile(file: File, taskRootPath: String): FileStateItem {
+        val newStateItem = FileStateItem(relativePath(taskRootPath, file.path))
 
         newStateItem.fileSize = file.length()
         newStateItem.lastEdited = file.lastModified()
@@ -142,8 +194,13 @@ class SynchronizationModule @Inject constructor(
         return newStateItem
     }
 
-    private fun remoteToStateFile(remote: RemoteFile, isFolder: Boolean = false): FileStateItem {
-        val newStateItem = FileStateItem(remote.remotePath!!)
+    private fun remoteToStateFile(
+        remote: RemoteFile,
+        taskRootPath: String,
+        isFolder: Boolean = false
+    ): FileStateItem {
+        val newStateItem = FileStateItem(relativePath(taskRootPath, remote.remotePath!!))
+
         newStateItem.tag = remote.etag
         newStateItem.fileSize = remote.size
         newStateItem.lastEdited = remote.modifiedTimestamp
@@ -152,12 +209,28 @@ class SynchronizationModule @Inject constructor(
         return newStateItem
     }
 
-    public data class FileDiff(
+    private fun relativePath(basePath: String, path: String): String {
+        return path.removePrefix(basePath)
+    }
+
+    public data class StateDiff(
+        val file: FileStateItem,
+        val option: StateOption
+    )
+
+    public data class SyncDiff(
         val file: FileStateItem,
         val option: SyncOption
     )
 
     public enum class SyncOption {
+        Upload,
+        Download,
+        Ignore,
+        Delete
+    }
+
+    public enum class StateOption {
         Add,
         Remove,
         Update

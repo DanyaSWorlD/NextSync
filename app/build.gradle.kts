@@ -104,4 +104,7 @@ dependencies {
 
     // json serialisation
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    // permissions lib
+    implementation("com.github.getActivity:XXPermissions:18.63")
 }
