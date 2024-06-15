@@ -21,8 +21,16 @@ class SynchronizationModule @Inject constructor(
         val stateBox = ObjectBox.store.boxFor(FileStateEntity::class)
 
         val task = taskBox.query { }.findFirst() ?: return
-        var state = stateBox.query(FileStateEntity_.taskId.equal(task.id)).build().findFirst()
+        val state = stateBox.query(FileStateEntity_.taskId.equal(task.id)).build().findFirst()
 
+        val diff = getDiff(task, state)
+
+        for (d in diff.diff) {
+
+        }
+    }
+
+    fun getDiff(task: TaskEntity, state: FileStateEntity?): DiffWithConflicts {
         var fileStateItem: FileStateItem? = null
         if (state != null)
             fileStateItem = Json.decodeFromString<FileStateItem>(state.folderContent)
@@ -37,7 +45,7 @@ class SynchronizationModule @Inject constructor(
                     it.file, when (it.option) {
                         StateOption.Add -> SyncOption.Upload
                         StateOption.Update -> SyncOption.Upload
-                        StateOption.Remove -> SyncOption.Delete
+                        StateOption.Remove -> SyncOption.DeleteLocal
                     }
                 )
             }.toMutableMap()
@@ -51,7 +59,7 @@ class SynchronizationModule @Inject constructor(
 
             // key exist, conflict occurred
             val existing = completeDiff[key]
-            if (existing!!.option == SyncOption.Delete && remote.option == StateOption.Remove)
+            if (existing!!.option == SyncOption.DeleteLocal && remote.option == StateOption.Remove)
                 continue
 
             if (existing.file.fileSize == remote.file.fileSize
@@ -61,18 +69,21 @@ class SynchronizationModule @Inject constructor(
                 continue
             }
 
+            completeDiff.remove(key)
             conflicts.add(
                 Pair(
                     existing, SyncDiff(
                         remote.file, option = when (remote.option) {
                             StateOption.Add -> SyncOption.Upload
                             StateOption.Update -> SyncOption.Upload
-                            StateOption.Remove -> SyncOption.Delete
+                            StateOption.Remove -> SyncOption.DeleteRemote
                         }
                     )
                 )
             )
         }
+
+        return DiffWithConflicts(completeDiff, conflicts)
     }
 
     private fun getRemoteDiffRecursive(
@@ -213,6 +224,11 @@ class SynchronizationModule @Inject constructor(
         return path.removePrefix(basePath)
     }
 
+    public data class DiffWithConflicts(
+        val diff: MutableMap<String, SyncDiff>,
+        val conflicts: MutableList<Pair<SyncDiff, SyncDiff>>
+    )
+
     public data class StateDiff(
         val file: FileStateItem,
         val option: StateOption
@@ -227,7 +243,8 @@ class SynchronizationModule @Inject constructor(
         Upload,
         Download,
         Ignore,
-        Delete
+        DeleteLocal,
+        DeleteRemote
     }
 
     public enum class StateOption {
