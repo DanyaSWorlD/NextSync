@@ -1,9 +1,9 @@
 package com.next.sync.core.sync
 
-import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.next.sync.core.sync.strategy.ISyncStrategy
 import com.next.sync.core.sync.tasks.ISyncTask
+import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import java.io.File
@@ -12,7 +12,7 @@ class SyncWorker(
     val localPath: String,
     val remotePath: String,
     val strategy: ISyncStrategy,
-    val nextcloudHelper: NextcloudClientHelper
+    val client: OwnCloudClient
 ) {
     fun sync(relativePath: String = "") {
         val localFiles = (File(localPath).listFiles() ?: arrayOf())
@@ -38,17 +38,16 @@ class SyncWorker(
         if (task == null) return
         var current: ISyncTask = task
         while (true) {
-            current.Run()
-            if (!current.next)
-                continue
+            current.run(client)
+            if (!current.hasNext)
+                break
             current = current.next()
         }
     }
 
     private fun getRemoteFiles(path: String): List<RemoteFile> {
-        val client = nextcloudHelper.ownCloudClient
         val result =
-            ReadFolderRemoteOperation(path).execute(client!!)
+            ReadFolderRemoteOperation(path).execute(client)
         val response = result.data as List<RemoteFile>
         return response.subList(1, response.size)
     }

@@ -5,6 +5,8 @@ import com.next.sync.core.db.data.FileStateEntity
 import com.next.sync.core.db.data.FileStateEntity_
 import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.model.FileStateItem
+import com.next.sync.core.sync.NextSync
+import com.next.sync.core.sync.strategy.SimpleUploadStrategy
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import io.objectbox.kotlin.boxFor
@@ -16,6 +18,15 @@ import javax.inject.Inject
 class SynchronizationModule @Inject constructor(
     private var nextcloudHelper: NextcloudClientHelper
 ) {
+    private val nextSync: NextSync by lazy { NextSync(nextcloudHelper.ownCloudClient!!) }
+
+    fun sync() {
+        val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
+        val task = taskBox.query { }.findFirst() ?: return
+
+        nextSync.sync(task.localPath, task.remotePath, SimpleUploadStrategy(task.remotePath))
+    }
+
     fun synchronizeTask() {
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val stateBox = ObjectBox.store.boxFor(FileStateEntity::class)

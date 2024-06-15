@@ -1,9 +1,11 @@
 package com.next.sync.core.sync.tasks
 
+import com.owncloud.android.lib.common.OwnCloudClient
+
 interface ISyncTask {
-    val next: Boolean get
+    val hasNext: Boolean get
 
-    fun next() : ISyncTask
+    fun next(): ISyncTask
 
-    fun Run()
+    fun run(client: OwnCloudClient)
 }

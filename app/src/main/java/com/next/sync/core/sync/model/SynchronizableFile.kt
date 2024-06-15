@@ -27,7 +27,7 @@ public data class SynchronizableFile(
             return SynchronizableFile(
                 file.name,
                 relativePath(basePath, file.path),
-                file.path,
+                file.absolutePath,
                 file.length(),
                 file.lastModified(),
                 file.isDirectory

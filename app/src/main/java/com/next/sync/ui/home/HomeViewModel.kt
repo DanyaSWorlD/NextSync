@@ -75,7 +75,7 @@ class HomeViewModel @Inject constructor(
 
     private fun synchronize() {
         viewModelScope.launch (Dispatchers.IO) {
-            synchronizationModule.synchronizeTask()
+            synchronizationModule.sync()
         }
     }
 }
