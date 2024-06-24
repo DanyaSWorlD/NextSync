@@ -16,7 +16,8 @@ import java.io.File
 import javax.inject.Inject
 
 class SynchronizationModule @Inject constructor(
-    private var nextcloudHelper: NextcloudClientHelper
+    private val nextcloudHelper: NextcloudClientHelper,
+    private val dataBus: DataBus
 ) {
     private val nextSync: NextSync by lazy { NextSync(nextcloudHelper.ownCloudClient!!) }
 
@@ -24,7 +25,9 @@ class SynchronizationModule @Inject constructor(
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val task = taskBox.query { }.findFirst() ?: return
 
-        nextSync.sync(task.localPath, task.remotePath, SimpleUploadStrategy(task.remotePath))
+        nextSync.sync(task.localPath, task.remotePath, SimpleUploadStrategy(task.remotePath)){
+            dataBus.emit(DataBusKey.ProgressFlowReset, it)
+        }
     }
 
     fun synchronizeTask() {

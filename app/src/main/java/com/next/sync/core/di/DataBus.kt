@@ -6,17 +6,18 @@ import javax.inject.Singleton
 @Singleton
 class DataBus @Inject constructor() {
     private val store = mutableMapOf<String, Any?>()
-    private var exitDelegates = mutableListOf<Pair<String, (Any?) -> Unit>>()
+    private val exitDelegates = mutableMapOf<String, (Any?) -> Unit>()
+    private val longLiveListeners = mutableMapOf<String, HashSet<(Any?) -> Unit>>()
 
     fun emit(key: String, value: Any?) {
         store[key] = value
 
-        val delegatesToProcess = exitDelegates.filter { it.first == key }
+        val delegatesToProcess = exitDelegates.filter { it.key == key }
         if (delegatesToProcess.isEmpty()) return
 
         delegatesToProcess.forEach {
-            it.second(value)
-            exitDelegates.remove(it)
+            it.value(value)
+            exitDelegates.remove(it.key)
         }
 
         consume(key)
@@ -28,6 +29,10 @@ class DataBus @Inject constructor() {
         return value
     }
 
+    inline fun <reified T> consumeTyped(key: String): T? {
+        return cast<T>(consume(key))
+    }
+
     fun consume(key: String, callback: (Any?) -> Unit) {
 
         if (store.containsKey(key)) {
@@ -35,9 +40,7 @@ class DataBus @Inject constructor() {
             return
         }
 
-        exitDelegates.add(Pair(key) {
-            callback(it)
-        })
+        exitDelegates[key] = { callback(it) }
     }
 
     inline fun <reified T> tryCast(instance: Any?, block: T.() -> Unit) {
@@ -51,10 +54,28 @@ class DataBus @Inject constructor() {
             return instance
         return null
     }
+
+    fun register(key: String, callback: (Any?) -> Unit) {
+        if (!longLiveListeners.containsKey(key))
+            longLiveListeners[key] = hashSetOf()
+
+        longLiveListeners[key]!!.add(callback)
+    }
+
+    fun unregister(key: String, callback: (Any?) -> Unit) {
+        if (!longLiveListeners.containsKey(key)) return
+
+        if (longLiveListeners[key]!!.contains(callback))
+            longLiveListeners[key]!!.remove(callback)
+
+        if (longLiveListeners[key]!!.isEmpty())
+            longLiveListeners.remove(key)
+    }
 }
 
 object DataBusKey {
     const val LocalPathPick = "LocalPathPick"
     const val RemotePathPick = "RemotePathPick"
     const val TaskId = "TaskId"
+    const val ProgressFlowReset = "ProgressFlowReset"
 }

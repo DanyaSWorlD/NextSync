@@ -9,6 +9,7 @@ import com.next.sync.core.db.data.TaskEntity_
 import com.next.sync.core.di.AccountModule
 import com.next.sync.core.di.DataBus
 import com.next.sync.core.di.DataBusKey
+import com.next.sync.core.di.NotificationModule
 import com.next.sync.ui.EventViewModel
 import com.next.sync.ui.Routes
 import com.next.sync.ui.events.TasksEvent

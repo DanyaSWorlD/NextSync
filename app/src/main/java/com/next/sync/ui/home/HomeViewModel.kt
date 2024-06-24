@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.next.sync.core.di.BatteryInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
+import com.next.sync.core.di.NotificationModule
 import com.next.sync.core.di.SynchronizationModule
 import com.next.sync.ui.EventViewModel
 import com.next.sync.ui.events.HomeEvents
@@ -34,7 +35,8 @@ data class HomeState(
 class HomeViewModel @Inject constructor(
     private val nextcloudClientHelper: NextcloudClientHelper,
     private val batteryInfoModule: BatteryInfoModule,
-    private val synchronizationModule: SynchronizationModule
+    private val synchronizationModule: SynchronizationModule,
+    private val notificationModule: NotificationModule
 ) : EventViewModel<HomeEvents>() {
 
     override val events: Map<String, (HomeEvents) -> Unit> = mapOf(
@@ -53,6 +55,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getQuota()
         }
+
+        notificationModule.createProgressNotification()
     }
 
     private suspend fun getQuota() {
@@ -74,7 +78,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun synchronize() {
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             synchronizationModule.sync()
         }
     }
