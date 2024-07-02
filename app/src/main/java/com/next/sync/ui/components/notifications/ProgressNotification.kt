@@ -7,12 +7,12 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.next.sync.R
 import com.next.sync.core.sync.model.Progress
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 
 class ProgressNotification(
-    val context: Context,
-    val progress: Flow<Progress>
+    val context: Context, val progress: Flow<Progress>
 ) {
     val channelId = "NextSync_transfer"
     val channelName = "File transfer progress"
@@ -31,11 +31,11 @@ class ProgressNotification(
         }
 
         notificationBuilder = NotificationCompat.Builder(context, channelId)
-        notificationBuilder.setOngoing(true)
+        notificationBuilder
+            .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("Uploading in progress...")
-            .setProgress(100, 0, true)
+            .setContentTitle("Uploading in progress...").setProgress(100, 0, true)
 
         notificationManager.notify(42, notificationBuilder.build())
 
@@ -43,10 +43,19 @@ class ProgressNotification(
             progress.collect {
                 val percent = it.total / 100
                 val progressInt = (it.done / percent).toInt()
-                notificationBuilder.setContentText(it.fileName)
+                notificationBuilder
+                    .setContentText(it.fileName)
                     .setProgress(100, progressInt, false)
                 notificationManager.notify(42, notificationBuilder.build())
+
+                if (progressInt == 100) this.cancel()
             }
+
+            notificationBuilder
+                .setOngoing(false)
+                .setContentTitle("Done")
+
+            notificationManager.notify(42, notificationBuilder.build())
         }
     }
 }

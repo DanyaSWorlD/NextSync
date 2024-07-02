@@ -4,6 +4,8 @@ import android.content.Context
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.ui.components.notifications.ProgressNotification
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -28,5 +30,6 @@ class NotificationModule @Inject constructor(
             delay(100)
             emit(Progress(100, i.toLong(), 100, "test"))
         }
+        currentCoroutineContext().cancel()
     }
 }
