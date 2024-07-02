@@ -4,11 +4,7 @@ import android.content.Context
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.ui.components.notifications.ProgressNotification
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class NotificationModule @Inject constructor(
@@ -17,19 +13,9 @@ class NotificationModule @Inject constructor(
 ) {
     init {
         bus.register(DataBusKey.ProgressFlowReset) {
-
+            bus.tryCast<Flow<Progress>>(it) {
+                ProgressNotification(context, this).show()
+            }
         }
-    }
-
-    fun createProgressNotification() {
-        ProgressNotification(context, simple()).show()
-    }
-
-    fun simple(): Flow<Progress> = flow { // flow builder
-        for (i in 1..100) {
-            delay(100)
-            emit(Progress(100, i.toLong(), 100, "test"))
-        }
-        currentCoroutineContext().cancel()
     }
 }

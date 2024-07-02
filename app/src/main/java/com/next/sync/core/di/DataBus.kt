@@ -12,6 +12,13 @@ class DataBus @Inject constructor() {
     fun emit(key: String, value: Any?) {
         store[key] = value
 
+        notifyDelegates(key, value)
+        notifyLongListeners(key, value)
+
+        consume(key)
+    }
+
+    private fun notifyDelegates(key: String, value: Any?) {
         val delegatesToProcess = exitDelegates.filter { it.key == key }
         if (delegatesToProcess.isEmpty()) return
 
@@ -19,8 +26,16 @@ class DataBus @Inject constructor() {
             it.value(value)
             exitDelegates.remove(it.key)
         }
+    }
 
-        consume(key)
+    private fun notifyLongListeners(key: String, value: Any?) {
+        if (!longLiveListeners.containsKey(key))
+            return
+
+        val listeners = longLiveListeners[key]
+        listeners?.forEach {
+            it(value)
+        }
     }
 
     fun consume(key: String): Any? {

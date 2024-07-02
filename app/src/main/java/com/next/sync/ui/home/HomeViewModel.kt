@@ -55,8 +55,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getQuota()
         }
-
-        notificationModule.createProgressNotification()
     }
 
     private suspend fun getQuota() {
