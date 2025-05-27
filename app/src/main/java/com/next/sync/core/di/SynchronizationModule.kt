@@ -28,16 +28,23 @@ class SynchronizationModule @Inject constructor(
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val task = taskBox.query { }.findFirst() ?: return
 
-        nextSync.sync(task.localPath, task.remotePath, SimpleUploadStrategy(task.remotePath)) {
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    dataBus.emit(
-                        DataBusKey.ProgressFlowReset,
-                        it
-                    )
+        runBlocking {
+            launch {
+                nextSync.sync(
+                    task.localPath,
+                    task.remotePath,
+                    SimpleUploadStrategy(task.remotePath)
+                ) {
+                    launch(Dispatchers.IO) {
+                        dataBus.emit(
+                            DataBusKey.ProgressFlowReset,
+                            it
+                        )
+                    }
                 }
             }
         }
+
     }
 
     fun synchronizeTask() {
