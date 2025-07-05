@@ -11,7 +11,8 @@ import kotlinx.coroutines.runBlocking
 
 
 class UploadTask(
-    private val localFile: SynchronizableFile, private val remotePath: String
+    private val localFile: SynchronizableFile,
+    private val remotePath: String
 ) : SyncTaskBase(), ILongRunningSyncTask {
 
     private var flow: MutableStateFlow<Progress?> = MutableStateFlow(null)
