@@ -10,6 +10,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.hjq.permissions.Permission
+import com.hjq.permissions.XXPermissions
 import com.next.sync.background.wokers.SyncCheckWorker
 import com.next.sync.ui.AppNavigation
 import com.next.sync.ui.theme.AppTheme
@@ -22,6 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initWorkers()
+        obtainPermissions()
         setContent {
             AppTheme {
                 // A surface container using the 'background' color from the theme
@@ -47,5 +50,11 @@ class MainActivity : ComponentActivity() {
             ExistingPeriodicWorkPolicy.UPDATE,
             localSyncWorker
         )
+    }
+
+    private fun obtainPermissions() {
+        XXPermissions.with(this)
+            .permission(Permission.MANAGE_EXTERNAL_STORAGE)
+            .request { _, _ -> }
     }
 }
