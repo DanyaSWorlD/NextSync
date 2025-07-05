@@ -1,6 +1,9 @@
 package com.next.sync.ui.options
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,12 +38,23 @@ import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun OptionsScreen() {
+    val context = LocalContext.current
+    
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item { Item(icon = Icons.Rounded.Settings, text = "Settings") }
         item { Item(icon = Icons.AutoMirrored.Rounded.HelpOutline, text = "Support") }
         item { Item(icon = Icons.Rounded.StarOutline, text = "Rate app") }
         item { Item(icon = Icons.Rounded.Translate, text = "Join translators") }
-        item { Item(icon = Icons.Rounded.Code, text = "Source code") }
+        item { 
+            Item(
+                icon = Icons.Rounded.Code, 
+                text = "Source code",
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/DanyaSWorlD/NextSync"))
+                    context.startActivity(intent)
+                }
+            ) 
+        }
         item { Item(text = "License agreement") }
         item { Item(text = "Confidential policy") }
         item { Footer() }
@@ -47,8 +62,12 @@ fun OptionsScreen() {
 }
 
 @Composable
-fun Item(icon: ImageVector, text: String) {
-    Row(modifier = Modifier.fillMaxSize()) {
+fun Item(icon: ImageVector, text: String, onClick: (() -> Unit)? = null) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+    ) {
         Icon(
             painter = rememberVectorPainter(icon),
             contentDescription = null, // decorative element
@@ -65,8 +84,12 @@ fun Item(icon: ImageVector, text: String) {
 }
 
 @Composable
-fun Item(text: String) {
-    Row(modifier = Modifier.fillMaxHeight()) {
+fun Item(text: String, onClick: (() -> Unit)? = null) {
+    Row(
+        modifier = Modifier
+            .fillMaxHeight()
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+    ) {
         Spacer(modifier = Modifier.width(72.dp))
 
         Box(
