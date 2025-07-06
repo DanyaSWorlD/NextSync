@@ -3,7 +3,9 @@ package com.next.sync.ui.components.notifications
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.next.sync.R
 import com.next.sync.core.sync.model.Progress
@@ -24,6 +26,12 @@ class ProgressNotification(
     lateinit var notificationBuilder: NotificationCompat.Builder
 
     fun show() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Optionally, trigger a permission request in your Activity before calling this
+                return
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationChannel =
                 NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)

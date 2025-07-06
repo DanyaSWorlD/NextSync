@@ -9,6 +9,8 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.next.sync.MainActivity
 import com.next.sync.R
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 
 class CreateNotification(
     var context: Context,
@@ -23,6 +25,12 @@ class CreateNotification(
     lateinit var notificationBuilder: NotificationCompat.Builder
 
     fun showNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Optionally, trigger a permission request in your Activity before calling this
+                return
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationChannel =
                 NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)

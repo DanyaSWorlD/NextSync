@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.next.sync"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.next.sync"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -95,7 +95,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     // nextcloud
-    implementation("com.github.nextcloud:android-library:2.19.0") {
+    implementation("com.github.nextcloud:android-library:2.18.0") {
         exclude(
             group = "org.ogce",
             module = "xpp3"
