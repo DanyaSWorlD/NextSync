@@ -1,10 +1,12 @@
 package com.next.sync.ui.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.next.sync.core.di.BatteryInfoModule
+import com.next.sync.core.di.NetworkInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.core.di.NotificationModule
 import com.next.sync.core.di.SynchronizationModule
@@ -22,6 +24,8 @@ import javax.inject.Inject
 data class HomeState(
     val isSynchronizing: Boolean = false,
     val isUsingWifi: Boolean = false,
+    val isUsingMobileData: Boolean = false,
+    val isConnectedToNetwork: Boolean = false,
     val isBatteryCharging: Boolean = false,
     val lastSync: String = "",
     val nextSync: String = "",
@@ -35,6 +39,7 @@ data class HomeState(
 class HomeViewModel @Inject constructor(
     private val nextcloudClientHelper: NextcloudClientHelper,
     private val batteryInfoModule: BatteryInfoModule,
+    private val networkInfoModule: NetworkInfoModule,
     private val synchronizationModule: SynchronizationModule,
     private val notificationModule: NotificationModule
 ) : EventViewModel<HomeEvents>() {
@@ -52,27 +57,43 @@ class HomeViewModel @Inject constructor(
             }
         }
 
+        viewModelScope.launch {
+            networkInfoModule.networkInfo.collect { info ->
+                Log.d("NetworkViewModel", "Network launch info: $info")
+                homeState = homeState.copy(
+                    isUsingWifi = info.isConnectedWifi,
+                    isUsingMobileData = info.isConnectedMobile,
+                    isConnectedToNetwork = info.isConnected
+                )
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            getQuota()
+                getQuota()
         }
     }
 
     private suspend fun getQuota() {
-        var client = nextcloudClientHelper.client
+        try {
+            var client = nextcloudClientHelper.client
 
-        if (client == null) {
-            nextcloudClientHelper.loadService()
-            client = nextcloudClientHelper.client ?: return
+            if (client == null) {
+                nextcloudClientHelper.loadService()
+                client = nextcloudClientHelper.client ?: return
+            }
+
+            val result: RemoteOperationResult<UserInfo> =
+                GetUserInfoRemoteOperation().execute(client)
+
+            val quota = result.resultData.quota
+            homeState = homeState.copy(
+                storageUsed = quota?.used ?: 0,
+                storageTotal = quota?.total ?: 0
+            )
+        } catch (e: Exception){
+            Log.d("HomeViewModel", "getQuota: ${e.message}")
+
         }
-
-        val result: RemoteOperationResult<UserInfo> =
-            GetUserInfoRemoteOperation().execute(client)
-
-        val quota = result.resultData.quota
-        homeState = homeState.copy(
-            storageUsed = quota?.used ?: 0,
-            storageTotal = quota?.total ?: 0
-        )
     }
 
     private fun synchronize() {
