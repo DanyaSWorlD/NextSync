@@ -24,11 +24,11 @@ class NetworkInfoModule @Inject constructor(
             val activeNetwork = connectivityManager.activeNetwork
             val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
 
-            val isConnected = capabilities != null && capabilities != null
             val isConnectedWifi =
-                capabilities?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) == true
+                capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
             val isConnectedMobile =
-                capabilities?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) == true
+                capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true
+            val isConnected = isConnectedWifi || isConnectedMobile
 
             trySend(
                 NetworkInfo(
@@ -44,7 +44,7 @@ class NetworkInfoModule @Inject constructor(
             override fun onLost(network: Network) = updateNetworkInfo()
             override fun onCapabilitiesChanged(
                 network: Network,
-                networkCapabilities: android.net.NetworkCapabilities
+                networkCapabilities: NetworkCapabilities
             ) = updateNetworkInfo()
         }
 
