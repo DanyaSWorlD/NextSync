@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HPlusMobiledata
+import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -27,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -79,7 +84,13 @@ private fun StatusCard(homeState: HomeState) {
         Column {
             Row {
                 Box(modifier = Modifier.weight(1f)) {
-                    Tile(R.drawable.baseline_network_wifi_24, "WI-FI")
+                    if (homeState.isConnectedToNetwork)
+                        if (homeState.isUsingWifi)
+                            Tile(Icons.Default.Wifi, "WI-FI")
+                        else
+                            Tile(Icons.Default.HPlusMobiledata, "Mobile Data")
+                    else
+                        Tile(Icons.Default.SignalWifiConnectedNoInternet4, "Offline")
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -360,6 +371,34 @@ fun IconText(@DrawableRes resource: Int, text: String) {
         Text(text = text, Modifier.padding(start = 4.dp))
     }
 }
+
+@Composable
+fun Tile(icon: ImageVector, text: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+
+        Row(modifier = Modifier.fillMaxHeight()) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null, // decorative element
+                Modifier.padding(16.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = text, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun Tile(@DrawableRes resource: Int, text: String) {
