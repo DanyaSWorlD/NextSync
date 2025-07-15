@@ -14,7 +14,6 @@ object ReviewHandler {
      * Initiates the in-app review flow.
      *
      * @param activity The current Activity, required to launch the review flow.
-     * @param scope A CoroutineScope to launch the asynchronous review operations.
      */
     fun launchInAppReview(activity: Activity) {
         val reviewManager = ReviewManagerFactory.create(activity)
