@@ -16,10 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HPlusMobiledata
 import androidx.compose.material.icons.filled.SignalCellularAlt
-import androidx.compose.material.icons.filled.SignalCellularConnectedNoInternet0Bar
-import androidx.compose.material.icons.filled.SignalCellularConnectedNoInternet4Bar
 import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
@@ -400,7 +397,6 @@ fun Tile(icon: ImageVector, text: String) {
         }
     }
 }
-
 
 
 @Composable
