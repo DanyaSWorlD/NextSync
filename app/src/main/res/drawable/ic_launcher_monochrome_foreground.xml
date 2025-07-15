@@ -9,7 +9,7 @@
       android:translateY="81.92">
     <group>
       <clip-path
-          android:pathData="M0,0h512v512h-512z"/>
+          android:pathData="M256.5,255.5m-236.5,0a236.5,236.5 0,1 1,473 0a236.5,236.5 0,1 1,-473 0"/>
       <path
           android:pathData="M213.15,509.97a79.82,79.77 105,1 1,-154.11 -41.28a79.82,79.77 105,1 1,154.11 41.28z"
           android:fillColor="#ffffff"/>
