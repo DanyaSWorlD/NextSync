@@ -1,7 +1,7 @@
 package com.next.sync.ui.options
 
+import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.StarOutline
-import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,30 +32,56 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.next.sync.BuildConfig
+import com.next.sync.ui.components.review.ReviewHandler
 import com.next.sync.ui.theme.AppTheme
 
 @Composable
 fun OptionsScreen() {
     val context = LocalContext.current
-    
+    val activity = context as? Activity
+
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item { Item(icon = Icons.Rounded.Settings, text = "Settings") }
         item { Item(icon = Icons.AutoMirrored.Rounded.HelpOutline, text = "Support") }
-        item { Item(icon = Icons.Rounded.StarOutline, text = "Rate app") }
-        item { Item(icon = Icons.Rounded.Translate, text = "Join translators") }
-        item { 
+        item {
             Item(
-                icon = Icons.Rounded.Code, 
+                icon = Icons.Rounded.StarOutline,
+                text = "Rate app",
+                onClick = {
+                    if (activity != null) {
+                        ReviewHandler.launchInAppReview(activity)
+                    } else {
+                        ReviewHandler.openPlayStoreForRating(context)
+                    }
+                }
+            )
+        }
+        item {
+            Item(
+                icon = Icons.Rounded.Code,
                 text = "Source code",
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/DanyaSWorlD/NextSync"))
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        "https://github.com/DanyaSWorlD/NextSync".toUri()
+                    )
                     context.startActivity(intent)
                 }
-            ) 
+            )
         }
-        item { Item(text = "License agreement") }
-        item { Item(text = "Confidential policy") }
+        item {
+            Item(
+                text = "Confidential policy",
+                onClick = {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        "https://docs.google.com/document/d/e/2PACX-1vQVMNU_TWAzAQCK64rhNRBmWfUaFQ5OaOoq3PPrU9AEPsZDbVMamEKfsEqtD0IJOsrLQHqwjnqi4EY_/pub".toUri()
+                    )
+                    context.startActivity(intent)
+                })
+        }
         item { Footer() }
     }
 }
@@ -110,7 +135,10 @@ fun Footer() {
         Spacer(modifier = Modifier.width(72.dp))
         Column {
             Text(text = "Next Sync", color = MaterialTheme.colorScheme.outline)
-            Text(text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})", color = MaterialTheme.colorScheme.outline)
+            Text(
+                text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                color = MaterialTheme.colorScheme.outline
+            )
         }
     }
 }
