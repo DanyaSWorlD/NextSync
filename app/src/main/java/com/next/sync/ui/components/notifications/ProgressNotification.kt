@@ -42,7 +42,7 @@ class ProgressNotification(
         notificationBuilder
             .setOngoing(true)
             .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.color.ic_launcher_background)
             .setContentTitle("Uploading in progress...").setProgress(100, 0, true)
 
         notificationManager.notify(42, notificationBuilder.build())

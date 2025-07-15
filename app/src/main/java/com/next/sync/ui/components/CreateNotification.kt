@@ -5,12 +5,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.next.sync.MainActivity
 import com.next.sync.R
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 
 class CreateNotification(
     var context: Context,
@@ -41,9 +41,9 @@ class CreateNotification(
         val pendingIntent =
             PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         notificationBuilder = NotificationCompat.Builder(context, channelId)
-        notificationBuilder.setSmallIcon(R.drawable.ic_launcher_background)
+        notificationBuilder.setSmallIcon(R.color.ic_launcher_background)
         notificationBuilder.addAction(
-            R.drawable.ic_launcher_background,
+            R.color.ic_launcher_background,
             "Open Notification",
             pendingIntent
         )
