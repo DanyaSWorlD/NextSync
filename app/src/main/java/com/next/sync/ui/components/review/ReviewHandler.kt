@@ -7,9 +7,6 @@ import androidx.core.net.toUri
 import com.google.android.play.core.review.ReviewManagerFactory
 
 object ReviewHandler {
-
-    private const val TAG = "ReviewHandler"
-
     /**
      * Initiates the in-app review flow.
      *
