@@ -20,7 +20,7 @@ object ReviewHandler {
         val request = reviewManager.requestReviewFlow()
         request.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val reviewInfo = request.result
+                val reviewInfo = task.result
                 val flow = reviewManager.launchReviewFlow(activity, reviewInfo)
                 flow.addOnCompleteListener { _ -> }
             } else {
