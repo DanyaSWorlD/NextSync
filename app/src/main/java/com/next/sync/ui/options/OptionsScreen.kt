@@ -73,7 +73,7 @@ fun OptionsScreen() {
         }
         item {
             Item(
-                text = "Confidential policy",
+                text = "Privacy policy",
                 onClick = {
                     val intent = Intent(
                         Intent.ACTION_VIEW,
