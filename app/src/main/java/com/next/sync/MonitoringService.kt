@@ -46,7 +46,7 @@ class MonitoringService: Service() {
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Directory Monitoring Service")
             .setContentText("Monitoring directory changes")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .build()
 
         startForeground(1, notification)

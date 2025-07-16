@@ -12,13 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Smartphone
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -89,7 +89,7 @@ private fun FolderPickerScreen(
     ) {
         Button(
             onClick = confirm,
-            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(
                 imageVector = Icons.Outlined.Check,

@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("io.objectbox")
@@ -9,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.next.sync"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.next.sync"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 2
         versionName = "0.0.2"
 
@@ -36,10 +37,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
-
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -59,29 +56,28 @@ kapt {
     }
 }
 
-val workVersion = "2.9.0"
-val hiltVersion = "2.51.1"
-val lifecycleVersion = "2.8.1"
-val navigationVersion = "2.7.7"
+val workVersion = "2.10.2"
+val hiltVersion = "2.56.2"
+val lifecycleVersion = "2.9.1"
+val navigationVersion = "2.9.1"
 dependencies {
     // AndroidX Core & AppCompat (Foundation)
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.7.0") // For older view-based components if any
+    implementation("androidx.core:core-ktx:1.16.0")
+    implementation("androidx.appcompat:appcompat:1.7.1") // For older view-based components if any
 
     // UI - Google Material Components (for XML views, if used) & ConstraintLayout
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
 
     // UI - Jetpack Compose
-    implementation(platform("androidx.compose:compose-bom:2024.05.00")) // BOM for consistent versions
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation(platform("androidx.compose:compose-bom:2025.06.01")) // BOM for consistent versions
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")                 // Material Design 3
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.material:material:1.6.7") // Consider removing if fully on Material3 & Compose BOM handles it
 
     // Lifecycle & ViewModel (Android Architecture Components)
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
@@ -105,11 +101,11 @@ dependencies {
     implementation("androidx.work:work-multiprocess:$workVersion")
 
     // Data Persistence - DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 
     // Networking & External Libraries
-    implementation("io.coil-kt:coil-compose:2.6.0") // Image Loading
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3") // JSON Serialization
+    implementation("io.coil-kt:coil-compose:2.7.0") // Image Loading
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0") // JSON Serialization
 
     // Nextcloud Integration
     implementation("com.github.nextcloud:android-library:2.18.0") {
@@ -118,14 +114,14 @@ dependencies {
     implementation("commons-httpclient:commons-httpclient:3.1@jar") // Consider if this can be replaced or updated
 
     // Permissions
-    implementation("com.github.getActivity:XXPermissions:18.63")
+    implementation("com.github.getActivity:XXPermissions:25.0")
 
     // Google Play Services
-    implementation("com.google.android.play:review-ktx:2.0.1") // In-App Review
+    implementation("com.google.android.play:review-ktx:2.0.2") // In-App Review
 
     // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.work:work-testing:$workVersion")
 }
