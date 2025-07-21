@@ -45,8 +45,7 @@ class HomeViewModel @Inject constructor(
 ) : EventViewModel<HomeEvents>() {
 
     override val events: Map<String, (HomeEvents) -> Unit> = mapOf(
-        forEvent<HomeEvents.SynchronizeNow> { synchronize() }
-    )
+        forEvent<HomeEvents.SynchronizeNow> { synchronize() })
 
     var homeState by mutableStateOf(HomeState())
 
@@ -69,7 +68,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-                getQuota()
+            getQuota()
         }
     }
 
@@ -87,10 +86,9 @@ class HomeViewModel @Inject constructor(
 
             val quota = result.resultData.quota
             homeState = homeState.copy(
-                storageUsed = quota?.used ?: 0,
-                storageTotal = quota?.total ?: 0
+                storageUsed = quota?.used ?: 0, storageTotal = quota?.total ?: 0
             )
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("HomeViewModel", "getQuota: ${e.message}")
 
         }
@@ -98,7 +96,9 @@ class HomeViewModel @Inject constructor(
 
     private fun synchronize() {
         viewModelScope.launch(Dispatchers.IO) {
-            synchronizationModule.sync()
+            synchronizationModule.sync() {
+                Log.d("HomeViewModel", "synchronize: $it")
+            }
         }
     }
 }
