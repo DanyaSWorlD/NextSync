@@ -1,5 +1,6 @@
 package com.next.sync.core.sync.tasks
 
+import android.util.Log
 import android.webkit.MimeTypeMap
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.model.SynchronizableFile
@@ -7,7 +8,6 @@ import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.runBlocking
 
 
 class UploadTask(
@@ -20,7 +20,7 @@ class UploadTask(
     override val progressFlow: Flow<Progress?>
         get() = flow
 
-    override fun run(client: OwnCloudClient) {
+    override fun run(client: OwnCloudClient, progress: (Progress) -> Unit) {
         val upload = UploadFileRemoteOperation(
             localFile.fullPath,
             remotePath,
@@ -28,11 +28,24 @@ class UploadTask(
             localFile.edited / 1000
         )
         upload.addDataTransferProgressListener { progressRate, totalTransferredSoFar, totalToTransfer, fileName ->
-            runBlocking {
-                flow.emit(
-                    Progress(progressRate, totalTransferredSoFar, totalToTransfer, fileName)
+//            runBlocking {
+//                flow.emit(
+//                    Progress(progressRate, totalTransferredSoFar, totalToTransfer, fileName)
+//                )
+//            }
+            Log.d(
+                "Upload Client",
+                "$progressRate, $totalTransferredSoFar/$totalToTransfer, $fileName"
+            )
+            progress.invoke(
+                Progress(
+                    progressRate,
+                    totalTransferredSoFar,
+                    totalToTransfer,
+                    fileName
                 )
-            }
+            )
+
         }
         upload.execute(client)
     }

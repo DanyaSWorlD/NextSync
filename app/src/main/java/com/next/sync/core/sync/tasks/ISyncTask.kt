@@ -1,5 +1,6 @@
 package com.next.sync.core.sync.tasks
 
+import com.next.sync.core.sync.model.Progress
 import com.owncloud.android.lib.common.OwnCloudClient
 
 interface ISyncTask {
@@ -7,5 +8,5 @@ interface ISyncTask {
 
     fun next(): ISyncTask
 
-    fun run(client: OwnCloudClient)
+    fun run(client: OwnCloudClient, progress: (Progress) -> Unit = {})
 }

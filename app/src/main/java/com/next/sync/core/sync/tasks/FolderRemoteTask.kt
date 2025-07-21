@@ -1,5 +1,6 @@
 package com.next.sync.core.sync.tasks
 
+import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.RemoveFileRemoteOperation
@@ -10,7 +11,7 @@ class FolderRemoteTask(
     private val remotePath: String,
     private val delete: Boolean
 ) : SyncTaskBase() {
-    override fun run(client: OwnCloudClient) {
+    override fun run(client: OwnCloudClient, progress: (Progress) -> Unit) {
         if (delete)
             RemoveFileRemoteOperation(remotePath).execute(client)
         else
