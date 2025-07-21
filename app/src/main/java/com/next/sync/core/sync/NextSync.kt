@@ -8,6 +8,8 @@ import com.next.sync.core.sync.tasks.ISyncTask
 import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -22,8 +24,8 @@ class NextSync(
         localPath: String,
         remotePath: String,
         strategy: ISyncStrategy,
-        callback: (Progress) -> Unit,
-    ) {
+        callback: (Progress) -> Unit = {},
+    ): Flow<Progress> = flow {
 //        var worker = SyncWorker(localPath, remotePath, strategy, client)
         //if (callback != null)
         //worker.progressFlow
@@ -33,14 +35,20 @@ class NextSync(
             val localFiles = getLocalFiles("", localPath)
             val remoteFiles = getRemoteFiles("", remotePath)
 
-            processFiles(localFiles, remoteFiles, strategy, callback)
+//            processFiles(localFiles, remoteFiles, strategy, callback)
+            processFiles(localFiles, remoteFiles, strategy, callback).collect {
+                emit(it)
+            }
         } catch (e: Exception) {
             throw Exception("Failed to sync: ${e.message}")
         }
 
     }
 
-    suspend fun getLocalFiles(relativePath: String, localPath: String): Map<String, SynchronizableFile> {
+    suspend fun getLocalFiles(
+        relativePath: String,
+        localPath: String
+    ): Map<String, SynchronizableFile> {
         val baseDir = File(localPath)
         val targetDir = if (relativePath.isEmpty()) baseDir else File(baseDir, relativePath)
 
@@ -50,7 +58,10 @@ class NextSync(
         } ?: emptyMap()
     }
 
-    suspend fun getRemoteFiles(relativePath: String, remotePath: String): Map<String, SynchronizableFile> {
+    suspend fun getRemoteFiles(
+        relativePath: String,
+        remotePath: String
+    ): Map<String, SynchronizableFile> {
         val fullPath = if (relativePath.isEmpty()) remotePath else "$remotePath/$relativePath"
         Log.d("NextSync", "getRemoteFiles: $fullPath")
         val result = ReadFolderRemoteOperation(fullPath).execute(client)
@@ -74,7 +85,7 @@ class NextSync(
         remoteFiles: Map<String, SynchronizableFile>,
         strategy: ISyncStrategy,
         progress: (Progress) -> Unit
-    ) {
+    ): Flow<Progress> = flow {
 
         val allPaths = (localFiles.keys + remoteFiles.keys).distinct()
 
@@ -89,7 +100,10 @@ class NextSync(
                 try {
                     val task = strategy.decide(localFile, remoteFile)
                     if (task != null) {
-                        executeTask(task, progress)
+                        //executeTask(task, progress)
+                        executeTask(task).collect {
+                            emit(it)
+                        }
                     }
                     success = true
                     processedFiles[path] = true
@@ -111,6 +125,18 @@ class NextSync(
 
         while (true) {
             current.run(client, progress)
+            if (!current.hasNext) break
+            current = current.next()
+        }
+    }
+
+    suspend fun executeTask(task: ISyncTask): Flow<Progress> = flow {
+        var current: ISyncTask = task
+
+        while (true) {
+            current.run(client).collect {
+                emit(it)
+            }
             if (!current.hasNext) break
             current = current.next()
         }
