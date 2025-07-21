@@ -33,4 +33,8 @@ class DownloadTask(
         
         operation.execute(client)
     }
+
+    override fun run(client: OwnCloudClient): Flow<Progress> {
+        TODO("Not yet implemented")
+    }
 }

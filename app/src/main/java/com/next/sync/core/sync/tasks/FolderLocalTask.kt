@@ -3,6 +3,7 @@ package com.next.sync.core.sync.tasks
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.owncloud.android.lib.common.OwnCloudClient
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 class FolderLocalTask(
@@ -17,5 +18,9 @@ class FolderLocalTask(
                 file.delete()
         } else if (!file.exists())
             file.mkdir()
+    }
+
+    override fun run(client: OwnCloudClient): Flow<Progress> {
+        TODO("Not yet implemented")
     }
 }
