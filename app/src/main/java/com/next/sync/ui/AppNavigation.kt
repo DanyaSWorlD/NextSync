@@ -11,19 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,11 +81,9 @@ fun AppNavigation(
                 AppBottomBar(navController = navController)
         },
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .padding(paddingValues)
         ) {
             NavHost(
@@ -198,37 +196,36 @@ private fun AccountTopBar(account: String, server: String) {
 fun AppBottomBar(
     navController: NavHostController,
 ) {
-    val backStackEntry = navController.currentBackStackEntryAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState() // Используем делегат by
+    val currentDestination = navBackStackEntry?.destination
 
     val screens = listOf(
         BottomBarScreen.Tasks,
         BottomBarScreen.Home,
         BottomBarScreen.Options
     )
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.surface
-    ) {
-        screens.forEach { screens ->
-            BottomNavigationItem(
-                label = { Text(text = screens.label, color = MaterialTheme.colorScheme.onSurface) },
+
+    NavigationBar {
+        screens.forEach { screenItem ->
+            NavigationBarItem(
+                selected = currentDestination?.route == screenItem.route,
+                onClick = {
+                    navController.navigate(screenItem.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Icon(
-                        imageVector = screens.icon,
-                        contentDescription = screens.route + " icon",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        imageVector = screenItem.icon,
+                        contentDescription = screenItem.label
                     )
                 },
-
-                unselectedContentColor = MaterialTheme.colorScheme.onSurface,
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                selected = screens.route == backStackEntry.value?.destination?.route,
-
-                onClick = {
-                    navController.navigate(screens.route) {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
-                    }
-                }
+                label = { Text(text = screenItem.label) },
+                alwaysShowLabel = true,
             )
         }
     }

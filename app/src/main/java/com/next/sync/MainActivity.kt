@@ -10,8 +10,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
+import com.hjq.permissions.permission.PermissionLists
 import com.next.sync.background.wokers.SyncCheckWorker
 import com.next.sync.ui.AppNavigation
 import com.next.sync.ui.theme.AppTheme
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
     private fun obtainPermissions() {
         XXPermissions.with(this)
-            .permission(Permission.MANAGE_EXTERNAL_STORAGE)
+            .permission(PermissionLists.getManageExternalStoragePermission())
             .request { _, _ -> }
     }
 }
