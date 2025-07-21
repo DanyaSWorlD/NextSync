@@ -5,9 +5,13 @@ import android.webkit.MimeTypeMap
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.owncloud.android.lib.common.OwnCloudClient
+import com.owncloud.android.lib.common.network.OnDatatransferProgressListener
 import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.withContext
 
 
 class UploadTask(
@@ -48,6 +52,35 @@ class UploadTask(
 
         }
         upload.execute(client)
+    }
+
+    override fun run(client: OwnCloudClient): Flow<Progress> = callbackFlow {
+        val upload = UploadFileRemoteOperation(
+            localFile.fullPath,
+            remotePath,
+            getMimeType(localFile.relativePath),
+            localFile.edited / 1000
+        )
+
+        val listener =
+            OnDatatransferProgressListener { progressRate, totalTransferredSoFar, totalToTransfer, fileName ->
+                trySend(
+                    Progress(
+                        progressRate,
+                        totalTransferredSoFar,
+                        totalToTransfer,
+                        fileName
+                    )
+                ).isSuccess
+            }
+
+        upload.addDataTransferProgressListener(listener)
+
+        withContext(Dispatchers.IO) {
+            upload.execute(client)
+        }
+
+        close()
     }
 
     private fun getMimeType(path: String?): String? {
