@@ -12,19 +12,21 @@ import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import io.objectbox.kotlin.boxFor
 import io.objectbox.kotlin.query
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
 
 class SynchronizationModule @Inject constructor(
     private val nextcloudHelper: NextcloudClientHelper,
-    private val dataBus: DataBus
+    private val dataBus: DataBus,
 ) {
     private val nextSync: NextSync by lazy { NextSync(nextcloudHelper.ownCloudClient!!) }
 
-    suspend fun sync(progress: (Progress) -> Unit) {
+    suspend fun sync(): Flow<Progress> = flow {
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
-        val task = taskBox.query { }.findFirst() ?: return
+        val task = taskBox.query { }.findFirst() ?: return@flow
 
 //        runBlocking {
 //            launch {
@@ -45,9 +47,10 @@ class SynchronizationModule @Inject constructor(
         nextSync.sync(
             task.localPath,
             task.remotePath,
-            SimpleUploadStrategy(task.remotePath),
-            progress
-        )
+            SimpleUploadStrategy(task.remotePath)
+        ).collect {
+            emit(it)
+        }
 
     }
 
