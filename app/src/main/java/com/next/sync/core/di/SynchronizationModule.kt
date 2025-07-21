@@ -6,14 +6,12 @@ import com.next.sync.core.db.data.FileStateEntity_
 import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.model.FileStateItem
 import com.next.sync.core.sync.NextSync
+import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.strategy.SimpleUploadStrategy
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import io.objectbox.kotlin.boxFor
 import io.objectbox.kotlin.query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
@@ -24,26 +22,32 @@ class SynchronizationModule @Inject constructor(
 ) {
     private val nextSync: NextSync by lazy { NextSync(nextcloudHelper.ownCloudClient!!) }
 
-    suspend fun sync() {
+    suspend fun sync(progress: (Progress) -> Unit) {
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val task = taskBox.query { }.findFirst() ?: return
 
-        runBlocking {
-            launch {
-                nextSync.sync(
-                    task.localPath,
-                    task.remotePath,
-                    SimpleUploadStrategy(task.remotePath)
-                ) {
-                    launch(Dispatchers.IO) {
-                        dataBus.emit(
-                            DataBusKey.ProgressFlowReset,
-                            it
-                        )
-                    }
-                }
-            }
-        }
+//        runBlocking {
+//            launch {
+//                nextSync.sync(
+//                    task.localPath,
+//                    task.remotePath,
+//                    SimpleUploadStrategy(task.remotePath)
+//                ) {
+//                    launch(Dispatchers.IO) {
+//                        dataBus.emit(
+//                            DataBusKey.ProgressFlowReset,
+//                            it
+//                        )
+//                    }
+//                }
+//            }
+//        }
+        nextSync.sync(
+            task.localPath,
+            task.remotePath,
+            SimpleUploadStrategy(task.remotePath),
+            progress
+        )
 
     }
 
