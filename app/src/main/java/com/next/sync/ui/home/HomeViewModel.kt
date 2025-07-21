@@ -1,10 +1,15 @@
 package com.next.sync.ui.home
 
+import android.app.Notification
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.viewModelScope
+import com.next.sync.R
 import com.next.sync.core.di.BatteryInfoModule
 import com.next.sync.core.di.NetworkInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
@@ -16,6 +21,7 @@ import com.owncloud.android.lib.common.UserInfo
 import com.owncloud.android.lib.common.operations.RemoteOperationResult
 import com.owncloud.android.lib.resources.users.GetUserInfoRemoteOperation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,7 +47,9 @@ class HomeViewModel @Inject constructor(
     private val batteryInfoModule: BatteryInfoModule,
     private val networkInfoModule: NetworkInfoModule,
     private val synchronizationModule: SynchronizationModule,
-    private val notificationModule: NotificationModule
+    private val notificationModule: NotificationModule,
+    @ApplicationContext private val context: Context,
+    private val notificationManager: NotificationManagerCompat
 ) : EventViewModel<HomeEvents>() {
 
     override val events: Map<String, (HomeEvents) -> Unit> = mapOf(
@@ -95,10 +103,29 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun synchronize() {
+        val notificationId = 1
         viewModelScope.launch(Dispatchers.IO) {
-            synchronizationModule.sync() {
-                Log.d("HomeViewModel", "synchronize: $it")
+            synchronizationModule.sync().collect {
+                val notification = buildProgressNotification(
+                    context, it.done.toInt(), it.total.toInt(), it.fileName
+                )
+                notificationManager.notify(notificationId, notification)
+
+                Log.d("VieModel", "Progress: ${(it.done / it.total)} ${it.done}")
             }
         }
+    }
+
+
+    fun buildProgressNotification(
+        context: Context, progress: Int, max: Int, title: String
+    ): Notification {
+        return NotificationCompat.Builder(context, "upload_channel")
+            .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+            .setContentTitle(title)
+            .setOngoing(true)
+            .setContentText("${(progress.toFloat() / max.toFloat()).times(100)} bytes uploaded")
+            .setProgress(max, progress, false)
+            .build()
     }
 }
