@@ -26,16 +26,11 @@ class NextSync(
         strategy: ISyncStrategy,
         callback: (Progress) -> Unit = {},
     ): Flow<Progress> = flow {
-//        var worker = SyncWorker(localPath, remotePath, strategy, client)
-        //if (callback != null)
-        //worker.progressFlow
-//        worker.sync()
 
         try {
             val localFiles = getLocalFiles("", localPath)
             val remoteFiles = getRemoteFiles("", remotePath)
 
-//            processFiles(localFiles, remoteFiles, strategy, callback)
             processFiles(localFiles, remoteFiles, strategy, callback).collect {
                 emit(it)
             }
