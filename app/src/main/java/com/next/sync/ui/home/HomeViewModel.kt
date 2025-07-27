@@ -111,7 +111,7 @@ class HomeViewModel @Inject constructor(
                 )
                 notificationManager.notify(notificationId, notification)
 
-                Log.d("VieModel", "Progress: ${(it.done / it.total)} ${it.done}")
+                Log.d("ViewModel", "Progress: ${(it.done / it.total)} ${it.done}")
             }
         }
     }
@@ -120,11 +120,11 @@ class HomeViewModel @Inject constructor(
     fun buildProgressNotification(
         context: Context, progress: Int, max: Int, title: String
     ): Notification {
-        return NotificationCompat.Builder(context, "upload_channel")
+        return NotificationCompat.Builder(context, "Main Channel ID")
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
             .setContentTitle(title)
             .setOngoing(true)
-            .setContentText("${(progress.toFloat() / max.toFloat()).times(100)} bytes uploaded")
+            .setContentText("Upload progress: ${(progress.toFloat() / max.toFloat()).times(100).toInt()}%")
             .setProgress(max, progress, false)
             .build()
     }
