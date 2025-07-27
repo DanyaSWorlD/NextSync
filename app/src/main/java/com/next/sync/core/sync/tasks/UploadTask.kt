@@ -32,11 +32,7 @@ class UploadTask(
             localFile.edited / 1000
         )
         upload.addDataTransferProgressListener { progressRate, totalTransferredSoFar, totalToTransfer, fileName ->
-//            runBlocking {
-//                flow.emit(
-//                    Progress(progressRate, totalTransferredSoFar, totalToTransfer, fileName)
-//                )
-//            }
+
             Log.d(
                 "Upload Client",
                 "$progressRate, $totalTransferredSoFar/$totalToTransfer, $fileName"
