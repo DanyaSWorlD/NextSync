@@ -16,7 +16,7 @@ class DownloadTask(
     private val _progress = MutableStateFlow<Progress?>(null)
     override val progressFlow: Flow<Progress?> = _progress
 
-    override fun run(client: OwnCloudClient) {
+    override fun run(client: OwnCloudClient, progress: (Progress) -> Unit) {
         val localFile = File(file.fullPath)
         if (!localFile.parentFile?.exists()!!) {
             localFile.parentFile?.mkdirs()
@@ -32,5 +32,9 @@ class DownloadTask(
         }
         
         operation.execute(client)
+    }
+
+    override fun run(client: OwnCloudClient): Flow<Progress> {
+        TODO("Not yet implemented")
     }
 }
