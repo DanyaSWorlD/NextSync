@@ -76,6 +76,16 @@ fun isDirContentChanged(previous: Map<String, Long>, current: Map<String, Long>)
 fun saveDirectoryState(directory: DirectoryEntity) {
     Log.d("DirScanner", "Saving")
     val directoryBox = store.boxFor(DirectoryEntity::class)
+
+    val query = directoryBox.query(
+        DirectoryEntity_.directoryPath.equal(directory.directoryPath)
+    ).build()
+    val existing = query.findFirst()
+    query.close()
+    existing?.let {
+        directory.id = it.id
+    }
+
     directoryBox.put(directory)
     Log.d("DirScanner", "Saved")
 }

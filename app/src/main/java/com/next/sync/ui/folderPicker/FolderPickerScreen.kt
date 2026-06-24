@@ -73,14 +73,15 @@ private fun FolderPickerScreen(
         Path(state.path) { up() }
         HorizontalDivider()
 
-        if (state.isLoading)
+        if (state.isLoading) {
             Loading()
-
-        if (state.path.isNotEmpty() && state.folders.any())
-            Folders(state, open)
-
-        if (state.path.isNotEmpty() && state.folders.isEmpty())
+        } else if (state.path.isNotEmpty() && state.folders.any()) {
+            FoldersWithCount(state.folders, state.filesCount, open)
+        } else if (state.path.isNotEmpty() && state.filesCount > 0) {
+            ItemsCount(state.filesCount)
+        } else if (state.path.isNotEmpty()) {
             Empty()
+        }
     }
     Box(
         contentAlignment = Alignment.BottomEnd, modifier = Modifier
@@ -116,14 +117,32 @@ private fun Path(path: String, up: () -> Unit) {
 }
 
 @Composable
-private fun Folders(state: FolderPickerState, click: (String) -> Unit) {
+private fun FoldersWithCount(folders: List<String>, filesCount: Int, click: (String) -> Unit) {
     LazyColumn {
-        items(items = state.folders) { folder ->
+        items(items = folders) { folder ->
             Folder(name = folder) { name ->
                 click(name)
             }
         }
+        if (filesCount > 0) {
+            item {
+                ItemsCount(filesCount)
+            }
+        }
     }
+}
+
+@Composable
+private fun ItemsCount(count: Int) {
+    Text(
+        text = "$count items",
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    )
 }
 
 @Composable

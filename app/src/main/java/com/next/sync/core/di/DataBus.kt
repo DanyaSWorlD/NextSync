@@ -38,6 +38,12 @@ class DataBus @Inject constructor() {
         }
     }
 
+    fun stash(key: String, value: Any?) {
+        store[key] = value
+        notifyDelegates(key, value)
+        notifyLongListeners(key, value)
+    }
+
     fun consume(key: String): Any? {
         val value = store[key]
         store.remove(key)
