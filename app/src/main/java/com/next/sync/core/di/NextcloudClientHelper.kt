@@ -32,9 +32,9 @@ class NextcloudClientHelper @Inject constructor(
                 return@launch
             }
 
-            val account = accountModule.getAccountData(id)
+            val account = accountModule.getAccountData(id) ?: return@launch
 
-            val credentials: String = Credentials.basic(account!!.user, account.password)
+            val credentials: String = Credentials.basic(account.user, account.password)
             client = NextcloudClient(
                 Uri.parse(account.server), account.user, credentials, context
             )

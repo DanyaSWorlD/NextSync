@@ -34,19 +34,24 @@ class SynchronizationModule @Inject constructor(
             if (nextcloudHelper.ownCloudClient == null) return
         }
         if (nextSync == null) {
-            nextSync = NextSync(nextcloudHelper.ownCloudClient!!)
+            val c = nextcloudHelper.ownCloudClient ?: return
+            nextSync = NextSync(c)
         }
 
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val tasks = taskBox.all
 
         for (task in tasks) {
-            nextSync!!.sync(
-                task.localPath,
-                task.remotePath,
-                SimpleUploadStrategy(task.remotePath)
-            ) { progress ->
-                dataBus.emit(DataBusKey.ProgressFlowReset, progress)
+            try {
+                nextSync?.sync(
+                    task.localPath,
+                    task.remotePath,
+                    SimpleUploadStrategy(task.remotePath)
+                ) { progress ->
+                    dataBus.emit(DataBusKey.ProgressFlowReset, progress)
+                }?.collect { }
+            } catch (e: Exception) {
+                android.util.Log.e("SynchronizationModule", "Sync failed: ${e.message}")
             }
         }
     }

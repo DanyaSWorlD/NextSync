@@ -113,7 +113,7 @@ class SyncWorker(
             throw Exception("Failed to read remote directory: ${result.message}")
         }
         
-        val response = result.data as List<RemoteFile>
+        val response = result.data as? List<RemoteFile> ?: return emptyMap()
         return response.subList(1, response.size).mapNotNull { file ->
             val relPath = if (relativePath.isEmpty()) file.remotePath else "$relativePath/${file.remotePath}"
             relPath?.let { path ->
