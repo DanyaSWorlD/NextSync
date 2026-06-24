@@ -65,9 +65,15 @@ class FolderPickerRemoteViewModel @Inject constructor(
 
     private fun getFiles(callback: (List<RemoteFile>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result =
-                ReadFolderRemoteOperation(getPath(path)).execute(nextcloud.ownCloudClient!!)
-            callback(result.data as List<RemoteFile>)
+            val client = nextcloud.ownCloudClient ?: return@launch
+            val result = ReadFolderRemoteOperation(getPath(path)).execute(client)
+            if (!result.isSuccess) {
+                folderState = folderState.copy(isLoading = false)
+                return@launch
+            }
+            @Suppress("UNCHECKED_CAST")
+            val files = result.data as? List<RemoteFile> ?: return@launch
+            callback(files)
         }
     }
 

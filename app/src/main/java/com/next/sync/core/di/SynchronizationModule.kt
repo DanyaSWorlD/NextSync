@@ -6,14 +6,17 @@ import com.next.sync.core.db.data.FileStateEntity_
 import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.model.FileStateItem
 import com.next.sync.core.sync.NextSync
-import com.next.sync.core.sync.model.Progress
+import com.next.sync.core.sync.model.SynchronizableFile
 import com.next.sync.core.sync.strategy.SimpleUploadStrategy
+import com.next.sync.core.sync.tasks.DeleteLocalTask
+import com.next.sync.core.sync.tasks.DeleteRemoteTask
+import com.next.sync.core.sync.tasks.DownloadTask
+import com.next.sync.core.sync.tasks.UploadTask
+import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import io.objectbox.kotlin.boxFor
 import io.objectbox.kotlin.query
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
@@ -22,33 +25,78 @@ class SynchronizationModule @Inject constructor(
     private val nextcloudHelper: NextcloudClientHelper,
     private val dataBus: DataBus,
 ) {
-    private val nextSync: NextSync by lazy { NextSync(nextcloudHelper.ownCloudClient!!) }
+    private var nextSync: NextSync? = null
 
-    suspend fun sync(): Flow<Progress> = flow {
-        val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
-        val task = taskBox.query { }.findFirst() ?: return@flow
-
-        nextSync.sync(
-            task.localPath,
-            task.remotePath,
-            SimpleUploadStrategy(task.remotePath)
-        ).collect {
-            emit(it)
+    suspend fun sync() {
+        val client = nextcloudHelper.ownCloudClient
+        if (client == null) {
+            nextcloudHelper.loadService()
+            if (nextcloudHelper.ownCloudClient == null) return
+        }
+        if (nextSync == null) {
+            nextSync = NextSync(nextcloudHelper.ownCloudClient!!)
         }
 
+        val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
+        val tasks = taskBox.all
+
+        for (task in tasks) {
+            nextSync!!.sync(
+                task.localPath,
+                task.remotePath,
+                SimpleUploadStrategy(task.remotePath)
+            ) { progress ->
+                dataBus.emit(DataBusKey.ProgressFlowReset, progress)
+            }
+        }
     }
 
     fun synchronizeTask() {
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val stateBox = ObjectBox.store.boxFor(FileStateEntity::class)
 
-        val task = taskBox.query { }.findFirst() ?: return
+        val task = taskBox.all.firstOrNull() ?: return
         val state = stateBox.query(FileStateEntity_.taskId.equal(task.id)).build().findFirst()
 
         val diff = getDiff(task, state)
 
-        for (d in diff.diff) {
+        val client = nextcloudHelper.ownCloudClient ?: return
 
+        for ((_, syncDiff) in diff.diff) {
+            executeSyncDiff(syncDiff, task, client)
+        }
+
+        for (conflict in diff.conflicts) {
+            executeSyncDiff(conflict.first, task, client)
+        }
+    }
+
+    private fun executeSyncDiff(syncDiff: SyncDiff, task: TaskEntity, client: OwnCloudClient) {
+        val file = syncDiff.file
+        val synchronizableFile = SynchronizableFile(
+            name = getName(file.relativePath),
+            relativePath = file.relativePath,
+            fullPath = task.localPath + file.relativePath,
+            size = file.fileSize,
+            edited = file.lastEdited,
+            isFolder = file.isFolder
+        )
+        val remoteFilePath = task.remotePath + file.relativePath
+
+        when (syncDiff.option) {
+            SyncOption.Upload -> {
+                UploadTask(synchronizableFile, remoteFilePath).run(client)
+            }
+            SyncOption.Download -> {
+                DownloadTask(synchronizableFile, remoteFilePath).run(client)
+            }
+            SyncOption.DeleteLocal -> {
+                DeleteLocalTask(synchronizableFile).run(client)
+            }
+            SyncOption.DeleteRemote -> {
+                DeleteRemoteTask(synchronizableFile).run(client)
+            }
+            SyncOption.Ignore -> { }
         }
     }
 
@@ -206,10 +254,11 @@ class SynchronizationModule @Inject constructor(
     }
 
     private fun getRemoteFiles(path: String): List<RemoteFile> {
-        val client = nextcloudHelper.ownCloudClient
-        val result =
-            ReadFolderRemoteOperation(path).execute(client!!)
-        val response = result.data as List<RemoteFile>
+        val client = nextcloudHelper.ownCloudClient ?: return emptyList()
+        val result = ReadFolderRemoteOperation(path).execute(client)
+        if (!result.isSuccess) return emptyList()
+        @Suppress("UNCHECKED_CAST")
+        val response = result.data as? List<RemoteFile> ?: return emptyList()
         return response.subList(1, response.size)
     }
 

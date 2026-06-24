@@ -38,7 +38,7 @@ class TasksViewModel @Inject constructor(
     }
 
     private fun editTask(event: TasksEvent.OpenItem) {
-        bus.emit(DataBusKey.TaskId, event.id)
+        bus.stash(DataBusKey.TaskId, event.id)
         event.navigate(Routes.CreateTasksScreen.name)
     }
 

@@ -36,7 +36,7 @@ class AccountModule @Inject constructor(
         val accountBox = store.boxFor(AccountEntity::class)
 
         val query = accountBox.query(
-                AccountEntity_.user.equal(account.user) and AccountEntity_.user.equal(account.server)
+                AccountEntity_.user.equal(account.user) and AccountEntity_.server.equal(account.server)
             ).build()
 
         val results = query.find()

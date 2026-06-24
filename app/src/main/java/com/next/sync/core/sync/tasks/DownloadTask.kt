@@ -18,8 +18,10 @@ class DownloadTask(
 
     override fun run(client: OwnCloudClient, progress: (Progress) -> Unit) {
         val localFile = File(file.fullPath)
-        if (!localFile.parentFile?.exists()!!) {
-            localFile.parentFile?.mkdirs()
+        localFile.parentFile?.let { parent ->
+            if (!parent.exists()) {
+                parent.mkdirs()
+            }
         }
 
         val operation = DownloadFileRemoteOperation(remotePath, localFile.absolutePath)

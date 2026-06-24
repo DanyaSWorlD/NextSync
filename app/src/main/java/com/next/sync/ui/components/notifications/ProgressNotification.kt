@@ -9,9 +9,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.next.sync.R
 import com.next.sync.core.sync.model.Progress
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class ProgressNotification(
     val context: Context, val progress: Flow<Progress?>
@@ -25,10 +27,12 @@ class ProgressNotification(
     lateinit var notificationChannel: NotificationChannel
     lateinit var notificationBuilder: NotificationCompat.Builder
 
+    private var job: Job? = null
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     fun show() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Optionally, trigger a permission request in your Activity before calling this
                 return
             }
         }
@@ -47,25 +51,36 @@ class ProgressNotification(
 
         notificationManager.notify(42, notificationBuilder.build())
 
-        runBlocking {
-            progress.collect {
-                if (it != null) {
-                    val percent = it.total / 100
-                    val progressInt = (it.done / percent).toInt()
+        job = scope.launch {
+            progress.collect { value ->
+                if (value != null) {
+                    val percent = value.total / 100
+                    val progressInt = if (percent > 0) (value.done / percent).toInt() else 0
                     notificationBuilder
-                        .setContentText(it.fileName)
+                        .setContentText(value.fileName)
                         .setProgress(100, progressInt, false)
                     notificationManager.notify(42, notificationBuilder.build())
 
-                    if (progressInt == 100) this.cancel()
+                    if (progressInt >= 100) {
+                        finish()
+                        return@collect
+                    }
                 }
             }
 
-            notificationBuilder
-                .setOngoing(false)
-                .setContentTitle("Done")
-
-            notificationManager.notify(42, notificationBuilder.build())
+            finish()
         }
+    }
+
+    fun cancel() {
+        job?.cancel()
+        notificationManager.cancel(42)
+    }
+
+    private fun finish() {
+        notificationBuilder
+            .setOngoing(false)
+            .setContentTitle("Done")
+        notificationManager.notify(42, notificationBuilder.build())
     }
 }

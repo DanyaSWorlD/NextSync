@@ -11,6 +11,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.viewModelScope
 import com.next.sync.R
 import com.next.sync.core.di.BatteryInfoModule
+import com.next.sync.core.di.DataBus
+import com.next.sync.core.di.DataBusKey
 import com.next.sync.core.di.NetworkInfoModule
 import com.next.sync.core.di.NextcloudClientHelper
 import com.next.sync.core.di.NotificationModule
@@ -47,6 +49,7 @@ class HomeViewModel @Inject constructor(
     private val batteryInfoModule: BatteryInfoModule,
     private val networkInfoModule: NetworkInfoModule,
     private val synchronizationModule: SynchronizationModule,
+    private val dataBus: DataBus,
     private val notificationModule: NotificationModule,
     @ApplicationContext private val context: Context,
     private val notificationManager: NotificationManagerCompat
@@ -104,15 +107,17 @@ class HomeViewModel @Inject constructor(
 
     private fun synchronize() {
         val notificationId = 1
-        viewModelScope.launch(Dispatchers.IO) {
-            synchronizationModule.sync().collect {
+        dataBus.register(DataBusKey.ProgressFlowReset) { progress ->
+            if (progress is com.next.sync.core.sync.model.Progress) {
                 val notification = buildProgressNotification(
-                    context, it.done.toInt(), it.total.toInt(), it.fileName
+                    context, progress.done.toInt(), progress.total.toInt(), progress.fileName
                 )
                 notificationManager.notify(notificationId, notification)
-
-                Log.d("ViewModel", "Progress: ${(it.done / it.total)} ${it.done}")
+                Log.d("ViewModel", "Progress: ${(progress.done / progress.total)} ${progress.done}")
             }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            synchronizationModule.sync()
         }
     }
 
