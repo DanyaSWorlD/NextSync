@@ -60,6 +60,8 @@ class HomeViewModel @Inject constructor(
 
     var homeState by mutableStateOf(HomeState())
 
+    private var syncPending = false
+
     fun launch() {
         viewModelScope.launch(Dispatchers.IO) {
             batteryInfoModule.batteryInfo.collect { info ->
@@ -68,13 +70,20 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            var wasConnected = false
             networkInfoModule.networkInfo.collect { info ->
+                val isConnected = info.isConnected
                 Log.d("NetworkViewModel", "Network launch info: $info")
                 homeState = homeState.copy(
                     isUsingWifi = info.isConnectedWifi,
                     isUsingMobileData = info.isConnectedMobile,
-                    isConnectedToNetwork = info.isConnected
+                    isConnectedToNetwork = isConnected
                 )
+                if (isConnected && !wasConnected) {
+                    launch(Dispatchers.IO) { getQuota() }
+                    retryPendingSync()
+                }
+                wasConnected = isConnected
             }
         }
 
@@ -116,11 +125,26 @@ class HomeViewModel @Inject constructor(
                 Log.d("ViewModel", "Progress: ${(progress.done / progress.total)} ${progress.done}")
             }
         }
+        syncPending = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                synchronizationModule.sync()
+                syncPending = false
+            } catch (e: Exception) {
+                Log.d("HomeViewModel", "synchronize: ${e.message}")
+            }
+        }
+    }
+
+    private fun retryPendingSync() {
+        if (!syncPending) return
+        syncPending = false
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 synchronizationModule.sync()
             } catch (e: Exception) {
-                Log.d("HomeViewModel", "synchronize: ${e.message}")
+                Log.d("HomeViewModel", "retrySync: ${e.message}")
+                syncPending = true
             }
         }
     }
