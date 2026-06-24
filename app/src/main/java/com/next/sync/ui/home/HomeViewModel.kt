@@ -117,7 +117,11 @@ class HomeViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            synchronizationModule.sync()
+            try {
+                synchronizationModule.sync()
+            } catch (e: Exception) {
+                Log.d("HomeViewModel", "synchronize: ${e.message}")
+            }
         }
     }
 
