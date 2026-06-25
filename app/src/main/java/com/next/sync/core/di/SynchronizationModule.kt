@@ -6,6 +6,7 @@ import com.next.sync.core.db.data.FileStateEntity_
 import com.next.sync.core.db.data.TaskEntity
 import com.next.sync.core.model.FileStateItem
 import com.next.sync.core.sync.NextSync
+import com.next.sync.core.sync.SyncProgressTracker
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.next.sync.core.sync.strategy.SimpleUploadStrategy
 import com.next.sync.core.sync.tasks.DeleteLocalTask
@@ -17,6 +18,7 @@ import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import io.objectbox.kotlin.boxFor
 import io.objectbox.kotlin.query
+import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
@@ -24,36 +26,92 @@ import javax.inject.Inject
 class SynchronizationModule @Inject constructor(
     private val nextcloudHelper: NextcloudClientHelper,
     private val dataBus: DataBus,
+    private val progressTracker: SyncProgressTracker,
 ) {
     private var nextSync: NextSync? = null
 
     suspend fun sync() {
-        val client = nextcloudHelper.ownCloudClient
-        if (client == null) {
+        val c = nextcloudHelper.ownCloudClient
+        if (c == null) {
             nextcloudHelper.loadService()
             if (nextcloudHelper.ownCloudClient == null) return
         }
+        val client = nextcloudHelper.ownCloudClient ?: return
+
         if (nextSync == null) {
-            val c = nextcloudHelper.ownCloudClient ?: return
-            nextSync = NextSync(c)
+            nextSync = NextSync(client)
         }
+        val ns = nextSync!!
 
         val taskBox = ObjectBox.store.boxFor(TaskEntity::class)
         val tasks = taskBox.all
+        if (tasks.isEmpty()) return
+
+        data class ScanResult(
+            val localFiles: Map<String, SynchronizableFile>,
+            val remoteFiles: Map<String, SynchronizableFile>,
+            val strategy: SimpleUploadStrategy
+        )
+
+        var totalFiles = 0
+        var totalBytes = 0L
+        val scans = mutableListOf<ScanResult>()
 
         for (task in tasks) {
-            try {
-                nextSync?.sync(
-                    task.localPath,
-                    task.remotePath,
-                    SimpleUploadStrategy(task.remotePath)
-                ) { progress ->
-                    dataBus.emit(DataBusKey.ProgressFlowReset, progress)
-                }?.collect { }
-            } catch (e: Exception) {
-                android.util.Log.e("SynchronizationModule", "Sync failed: ${e.message}")
+            val localFiles = ns.getLocalFiles("", task.localPath)
+            val remoteFiles = ns.getRemoteFiles("", task.remotePath)
+            val strategy = SimpleUploadStrategy(task.remotePath)
+            val allPaths = (localFiles.keys + remoteFiles.keys).distinct()
+
+            var taskHasWork = false
+            for (path in allPaths) {
+                val syncTask = strategy.decide(localFiles[path], remoteFiles[path])
+                if (syncTask != null) {
+                    totalFiles++
+                    totalBytes += localFiles[path]?.size ?: remoteFiles[path]?.size ?: 0
+                    taskHasWork = true
+                }
+            }
+
+            if (taskHasWork) {
+                scans.add(ScanResult(localFiles, remoteFiles, strategy))
             }
         }
+
+        progressTracker.start(0, 0)
+
+        if (totalFiles == 0) {
+            progressTracker.finish()
+            return
+        }
+
+        progressTracker.updateTotals(totalFiles, totalBytes)
+
+        try {
+            for (scan in scans) {
+                val allPaths = (scan.localFiles.keys + scan.remoteFiles.keys).distinct()
+                for (path in allPaths) {
+                    yield()
+                    val syncTask = scan.strategy.decide(scan.localFiles[path], scan.remoteFiles[path])
+                    if (syncTask != null) {
+                        ns.executeTask(syncTask) { progress ->
+                            progressTracker.onFileProgress(
+                                progress.rate, progress.done, progress.total, progress.fileName
+                            )
+
+                            if (progress.done >= progress.total) {
+                                progressTracker.onFileComplete(progress.fileName, progress.total)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SynchronizationModule", "Sync failed: ${e.message}")
+            progressTracker.onError(e.message ?: "Unknown error")
+        }
+
+        progressTracker.finish()
     }
 
     fun synchronizeTask() {
@@ -132,7 +190,6 @@ class SynchronizationModule @Inject constructor(
                 continue
             }
 
-            // key exist, conflict occurred
             val existing = completeDiff[key]
             if (existing!!.option == SyncOption.DeleteLocal && remote.option == StateOption.Remove)
                 continue

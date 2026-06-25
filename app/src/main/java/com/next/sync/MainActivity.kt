@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
     private fun obtainPermissions() {
         XXPermissions.with(this)
             .permission(PermissionLists.getManageExternalStoragePermission())
+            .permission(PermissionLists.getPostNotificationsPermission())
             .request { _, _ -> }
     }
 }

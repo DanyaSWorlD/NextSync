@@ -3,7 +3,10 @@ package com.next.sync.core.sync.tasks
 import com.next.sync.core.sync.model.Progress
 import com.next.sync.core.sync.model.SynchronizableFile
 import com.owncloud.android.lib.common.OwnCloudClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class DeleteLocalTask(
@@ -20,7 +23,16 @@ class DeleteLocalTask(
         }
     }
 
-    override fun run(client: OwnCloudClient): Flow<Progress> {
-        TODO("Not yet implemented")
+    override fun run(client: OwnCloudClient): Flow<Progress> = flow {
+        withContext(Dispatchers.IO) {
+            val localFile = File(file.fullPath)
+            if (localFile.exists()) {
+                if (localFile.isDirectory) {
+                    localFile.deleteRecursively()
+                } else {
+                    localFile.delete()
+                }
+            }
+        }
     }
 }

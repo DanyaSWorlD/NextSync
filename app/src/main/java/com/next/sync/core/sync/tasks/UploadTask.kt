@@ -1,5 +1,6 @@
 package com.next.sync.core.sync.tasks
 
+import android.os.SystemClock
 import android.util.Log
 import android.webkit.MimeTypeMap
 import com.next.sync.core.sync.model.Progress
@@ -58,8 +59,12 @@ class UploadTask(
             localFile.edited / 1000
         )
 
+        var lastEmitMs = 0L
         val listener =
             OnDatatransferProgressListener { progressRate, totalTransferredSoFar, totalToTransfer, fileName ->
+                val now = SystemClock.elapsedRealtime()
+                if (now - lastEmitMs < 200L) return@OnDatatransferProgressListener
+                lastEmitMs = now
                 trySend(
                     Progress(
                         progressRate,

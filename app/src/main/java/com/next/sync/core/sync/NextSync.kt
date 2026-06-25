@@ -24,14 +24,13 @@ class NextSync(
         localPath: String,
         remotePath: String,
         strategy: ISyncStrategy,
-        callback: (Progress) -> Unit = {},
     ): Flow<Progress> = flow {
 
         try {
             val localFiles = getLocalFiles("", localPath)
             val remoteFiles = getRemoteFiles("", remotePath)
 
-            processFiles(localFiles, remoteFiles, strategy, callback).collect {
+            processFiles(localFiles, remoteFiles, strategy).collect {
                 emit(it)
             }
         } catch (e: Exception) {
@@ -79,7 +78,6 @@ class NextSync(
         localFiles: Map<String, SynchronizableFile>,
         remoteFiles: Map<String, SynchronizableFile>,
         strategy: ISyncStrategy,
-        progress: (Progress) -> Unit
     ): Flow<Progress> = flow {
 
         val allPaths = (localFiles.keys + remoteFiles.keys).distinct()
@@ -95,7 +93,6 @@ class NextSync(
                 try {
                     val task = strategy.decide(localFile, remoteFile)
                     if (task != null) {
-                        //executeTask(task, progress)
                         executeTask(task).collect {
                             emit(it)
                         }

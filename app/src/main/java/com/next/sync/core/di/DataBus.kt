@@ -99,4 +99,5 @@ object DataBusKey {
     const val RemotePathPick = "RemotePathPick"
     const val TaskId = "TaskId"
     const val ProgressFlowReset = "ProgressFlowReset"
+    const val SyncStop = "SyncStop"
 }

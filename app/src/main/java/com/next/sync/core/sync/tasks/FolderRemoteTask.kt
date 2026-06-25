@@ -5,7 +5,10 @@ import com.next.sync.core.sync.model.SynchronizableFile
 import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.resources.files.RemoveFileRemoteOperation
 import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 
 class FolderRemoteTask(
     private val file: SynchronizableFile,
@@ -24,7 +27,17 @@ class FolderRemoteTask(
             )
     }
 
-    override fun run(client: OwnCloudClient): Flow<Progress> {
-        TODO("Not yet implemented")
+    override fun run(client: OwnCloudClient): Flow<Progress> = flow {
+        withContext(Dispatchers.IO) {
+            if (delete)
+                RemoveFileRemoteOperation(remotePath).execute(client)
+            else
+                UploadFileRemoteOperation(
+                    file.fullPath,
+                    remotePath,
+                    "DIR",
+                    file.edited / 1000
+                )
+        }
     }
 }
